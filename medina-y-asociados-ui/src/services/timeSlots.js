@@ -6,8 +6,7 @@ const TIME_SLOTS = [
   '14:15hs',
   '15:00hs',
   '15:45hs',
-  '16:15hs',
-  '17:00hs'
+  '16:30hs'
 ];
 
 export async function getAvailableTimeSlots(lawyerId, date) {
