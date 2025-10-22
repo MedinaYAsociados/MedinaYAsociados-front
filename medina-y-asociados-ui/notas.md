@@ -32,3 +32,20 @@ const USE_MOCK = false;
 
 - Cliente: cliente@test.com / 123456
 - Abogado: abogado@test.com / 123456
+
+
+# Aplicacion para Medina y Asociados
+
+✅ Sistema de autenticación con roles (cliente/abogado)
+✅ Dashboard del cliente con gestión de turnos
+✅ Dashboard completo del abogado con:
+
+Gestión de turnos actuales
+Historial de turnos con estados
+Sistema completo de gestión de clientes
+Búsquedas avanzadas (turnos y clientes)
+✅ Flujo completo de reserva de turnos
+✅ Sistema de edición de perfiles
+✅ Diseño consistente con la paleta de colores de Figma
+✅ UI/UX pulida con animaciones y transiciones
+La aplicación quedó profesional, funcional y lista para integrarse con el backend cuando sea necesario.

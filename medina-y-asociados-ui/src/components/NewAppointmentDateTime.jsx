@@ -204,18 +204,21 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
             <button
               onClick={handleConfirm}
               disabled={!canConfirm}
-              className={`w-full px-8 py-4 rounded-2xl font-extrabold text-lg shadow-medium transition-all
+              className={`w-full px-6 py-3.5 rounded-xl font-bold text-lg sm:text-xl shadow-medium transition-all duration-200
+                border-2 border-[#3D3229]
                 ${canConfirm 
-                  ? 'bg-[#8FB569] hover:bg-[#7FA055] text-white hover:shadow-elevated active:scale-[0.99]' 
-                  : 'bg-[#8FB569]/40 text-white/60 cursor-not-allowed'
+                  ? 'bg-[#B8D4A5] hover:bg-[#A8C495] text-[#3D3229] hover:shadow-elevated active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30' 
+                  : 'bg-[#B8D4A5]/40 text-[#3D3229]/60 cursor-not-allowed'
                 }`}
             >
               Confirmar turno
             </button>
             <button
               onClick={onHome}
-              className="w-full px-8 py-4 bg-[#9F8A66] hover:bg-[#8F7A56] text-white font-extrabold 
-                       rounded-2xl shadow-medium hover:shadow-elevated active:scale-[0.99] transition-all"
+              className="w-full px-6 py-3.5 bg-[#9F8A66] hover:bg-[#8F7A56] text-white font-bold 
+                       border-2 border-[#3D3229] rounded-xl shadow-medium hover:shadow-elevated 
+                       active:scale-[0.98] transition-all duration-200
+                       focus:outline-none focus:ring-4 focus:ring-[#9F8A66]/30 text-lg sm:text-xl"
             >
               Cancelar Turno
             </button>

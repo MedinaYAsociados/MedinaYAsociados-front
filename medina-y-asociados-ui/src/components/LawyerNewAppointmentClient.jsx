@@ -226,9 +226,12 @@ function LawyerNewAppointmentClient({ onBack, onHome, onContinue }) {
             {/* Botón Seguir */}
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-[#8FBC8F] hover:bg-[#7FA97F] border-2 border-[#3D3229] text-[#3D3229] 
-                       font-bold text-lg sm:text-xl rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
-                       transition-all mt-6 focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
+              className="w-full px-6 py-3.5 bg-[#B8D4A5] 
+                       border-2 border-[#3D3229] rounded-xl
+                       text-[#3D3229] text-lg sm:text-xl font-bold
+                       shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
+                       active:scale-[0.98] transition-all duration-200 mt-6
+                       focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30"
             >
               Seguir con turno
             </button>

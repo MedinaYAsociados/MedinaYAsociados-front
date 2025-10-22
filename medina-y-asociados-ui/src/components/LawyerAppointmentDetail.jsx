@@ -1,6 +1,6 @@
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 
-function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, onCancel }) {
+function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, onCancel, onConfirm }) {
   if (!appointment) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">
@@ -107,6 +107,14 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
           >
             Cancelar Turno
           </button>
+          <button
+            onClick={onConfirm}
+            className="w-full px-6 py-3.5 bg-[#8FBC8F]/70 hover:bg-[#7FA97F]/90 border-2 border-[#3D3229] text-white 
+                     font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                     transition-all focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
+          >
+            Confirmar turno
+          </button>
         </div>
 
         {/* Card de Estado */}
@@ -116,10 +124,22 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
                              font-semibold text-base rounded-xl transition-colors hover:bg-[#C9B896]/80">
               Estado
             </button>
-            <button className="flex-1 px-4 py-3 bg-[#D4A5A5]/70 border border-[#3D3229]/30 text-[#3D3229] 
-                             font-semibold text-base rounded-xl transition-colors hover:bg-[#D4A5A5]/90">
-              Reprog.
-            </button>
+            <div className={`flex-1 px-4 py-3 border border-[#3D3229]/30 text-[#3D3229] 
+                             font-semibold text-base rounded-xl ${
+                               appointment.status === 'cancelled' ? 'bg-[#D4A5A5]/70' :
+                               appointment.status === 'pending' ? 'bg-[#E8DCC4]/70' :
+                               appointment.status === 'confirmed' ? 'bg-[#B8D4B8]/70' :
+                               appointment.status === 'completed' ? 'bg-[#A5C4D4]/70' :
+                               appointment.status === 'rescheduled' ? 'bg-[#D4C4A5]/70' :
+                               'bg-white/70'
+                             }`}>
+              {appointment.status === 'cancelled' ? 'Cancelado' :
+               appointment.status === 'pending' ? 'Pendiente' :
+               appointment.status === 'confirmed' ? 'Confirmado' :
+               appointment.status === 'completed' ? 'Completado' :
+               appointment.status === 'rescheduled' ? 'Reprog.' :
+               'Sin estado'}
+            </div>
           </div>
         </div>
       </div>

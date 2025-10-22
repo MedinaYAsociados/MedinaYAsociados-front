@@ -24,7 +24,7 @@ function AppointmentCard({ appt, onClick }) {
   );
 }
 
-function ClientDashboard({ onLogout, onNewAppointment, onViewAppointment, user = { name: 'Nombre' } }) {
+function ClientDashboard({ onLogout, onNewAppointment, onViewAppointment, onEditProfile, user = { name: 'Nombre' } }) {
   const [tab, setTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
@@ -59,9 +59,13 @@ function ClientDashboard({ onLogout, onNewAppointment, onViewAppointment, user =
             <button onClick={onLogout} className={iconBtn} aria-label="Volver">
               <MdOutlineArrowBack className="w-8 h-8" />
             </button>
-            <div className="p-2 rounded-full border-2 border-[#3D3229]/30 bg-white/40 text-[#3D3229]">
+            <button 
+              onClick={onEditProfile}
+              className="p-2 rounded-full border-2 border-[#3D3229]/30 bg-white/40 text-[#3D3229] hover:bg-white/60 transition-colors cursor-pointer"
+              aria-label="Editar perfil"
+            >
               <MdPerson className="w-14 h-14 opacity-90" />
-            </div>
+            </button>
           </div>
         </div>
 
@@ -106,8 +110,12 @@ function ClientDashboard({ onLogout, onNewAppointment, onViewAppointment, user =
         <div className="mt-6 sm:mt-8">
           <button
             onClick={onNewAppointment}
-            className="w-full px-8 py-4 bg-[#D6C59F]/70 hover:bg-[#D6C59F]/90 border-2 border-[#3D3229] text-[#3D3229] 
-                     font-extrabold rounded-2xl shadow-medium hover:shadow-elevated active:scale-[0.99] transition-all"
+            className="w-full px-6 py-3.5 bg-[#B8D4A5] 
+                     border-2 border-[#3D3229] rounded-xl
+                     text-[#3D3229] text-lg sm:text-xl font-bold
+                     shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
+                     active:scale-[0.98] transition-all duration-200
+                     focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30"
           >
             Nuevo turno
           </button>
