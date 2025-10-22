@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { login } from '../services/auth';
 import { validateLogin } from '../utils/validation';
 
-function Login({ onGoRegister }) {
+function Login({ onGoRegister, onSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
@@ -18,8 +18,8 @@ function Login({ onGoRegister }) {
     if (Object.keys(errs).length) return;
     try {
       setLoading(true);
-      await login({ email, password });
-      console.log('Login OK');
+      const { user } = await login({ email, password });
+      onSuccess && onSuccess(user);
     } catch (err) {
       setApiError(err.message || 'Error al iniciar sesión');
     } finally {
@@ -28,7 +28,7 @@ function Login({ onGoRegister }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-8 animate-fade-in">
+  <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-8 animate-fade-in">
       <div className="w-full max-w-sm sm:max-w-md">
         {/* Título Principal */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#3D3229] text-center mb-8 sm:mb-10 md:mb-12 leading-tight animate-slide-up">
