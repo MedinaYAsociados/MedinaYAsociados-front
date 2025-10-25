@@ -49,3 +49,13 @@ Búsquedas avanzadas (turnos y clientes)
 ✅ Diseño consistente con la paleta de colores de Figma
 ✅ UI/UX pulida con animaciones y transiciones
 La aplicación quedó profesional, funcional y lista para integrarse con el backend cuando sea necesario.
+
+
+# acomoda
+- eliminar boton eliminar cliente
+- pantallas admin
+    - para cambiar el rol del user y agregar matricula y especialidades
+    - cambiar precios
+- botones agregar o sacar:
+- cuando reprogramemos un turno, sea para la hora y la fecha, no la especialdiad y abogado
+- agrergar boton de asisitio o no asisitio
