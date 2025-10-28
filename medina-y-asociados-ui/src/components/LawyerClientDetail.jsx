@@ -15,7 +15,7 @@ function ClientDetailCard({ label, value }) {
   );
 }
 
-function LawyerClientDetail({ client, onBack, onHome, onDeleteClient }) {
+function LawyerClientDetail({ client, onBack, onHome }) {
   if (!client) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">
@@ -25,12 +25,6 @@ function LawyerClientDetail({ client, onBack, onHome, onDeleteClient }) {
       </div>
     );
   }
-
-  const handleDelete = () => {
-    if (confirm(`¿Está seguro que desea eliminar al cliente ${client.name}?`)) {
-      onDeleteClient?.(client);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
@@ -105,21 +99,6 @@ function LawyerClientDetail({ client, onBack, onHome, onDeleteClient }) {
             label="Email" 
             value={client.email} 
           />
-        </div>
-
-        {/* Botón Eliminar cliente */}
-        <div className="mt-6 animate-slide-up">
-          <button
-            onClick={handleDelete}
-            className="w-full px-6 py-3.5 bg-[#B8D4A5] 
-                     border-2 border-[#3D3229] rounded-xl
-                     text-[#3D3229] text-lg sm:text-xl font-bold
-                     shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
-                     active:scale-[0.98] transition-all duration-200
-                     focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30"
-          >
-            Eliminar cliente
-          </button>
         </div>
       </div>
     </div>

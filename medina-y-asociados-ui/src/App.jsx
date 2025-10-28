@@ -49,9 +49,11 @@ function App() {
     // Si estamos reprogramando, no redirigir a pago
     if (isRescheduling) {
       console.log('Turno reprogramado exitosamente:', appointmentData);
-      alert('¡Turno reprogramado exitosamente!');
+      alert('¡Turno reprogramado exitosamente!\n\nSu turno ha sido reprogramado sin cargo adicional ya que el pago fue realizado previamente.');
       setIsRescheduling(false);
       setClientData(null);
+      setSelectedSpecialty(null);
+      setSelectedLawyer(null);
       setView('dashboard');
       return;
     }
@@ -61,6 +63,8 @@ function App() {
       console.log('Turno creado exitosamente para:', clientData, appointmentData);
       alert(`¡Turno creado exitosamente para ${clientData.firstName} ${clientData.lastName}!`);
       setClientData(null);
+      setSelectedSpecialty(null);
+      setSelectedLawyer(null);
       setView('dashboard');
       return;
     }
@@ -74,8 +78,13 @@ function App() {
 
   const handleReschedule = () => {
     setIsRescheduling(true);
-    // Comenzar el flujo de nuevo turno pero sin pago al final
-    setView('new-specialty');
+    // Cuando se reprograma, mantener la especialidad y abogado actuales
+    // e ir directo a selección de fecha y hora
+    if (currentAppointment) {
+      setSelectedSpecialty(currentAppointment.specialty);
+      setSelectedLawyer(currentAppointment.lawyer);
+    }
+    setView('new-datetime');
   };
 
   const handleCancelAppointment = () => {
@@ -402,7 +411,13 @@ function App() {
           onHome={() => setView('dashboard')}
           onReschedule={() => {
             setIsRescheduling(true);
-            setView('new-specialty');
+            // Cuando se reprograma, mantener la especialidad y abogado actuales
+            // e ir directo a selección de fecha y hora
+            if (currentAppointment) {
+              setSelectedSpecialty(currentAppointment.specialty);
+              setSelectedLawyer(currentAppointment.lawyer);
+            }
+            setView('new-datetime');
           }}
           onCancel={() => {
             if (confirm('¿Está seguro que desea cancelar este turno?')) {
@@ -475,7 +490,22 @@ function App() {
           selectedSpecialty={selectedSpecialty}
           selectedLawyer={selectedLawyer}
           clientData={clientData}
-          onBack={() => setView('new-lawyer')}
+          isRescheduling={isRescheduling}
+          onBack={() => {
+            // Si estamos reprogramando, volver al detalle del turno
+            if (isRescheduling) {
+              setIsRescheduling(false);
+              // Determinar si es cliente o abogado
+              if (user?.role === 'lawyer') {
+                setView('lawyer-appointment-detail');
+              } else {
+                setView('appointment-detail');
+              }
+            } else {
+              // Si no, volver al paso anterior (selección de abogado)
+              setView('new-lawyer');
+            }
+          }}
           onHome={() => { 
             setIsRescheduling(false); 
             setClientData(null);

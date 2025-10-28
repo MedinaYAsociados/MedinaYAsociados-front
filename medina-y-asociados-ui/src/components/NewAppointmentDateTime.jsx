@@ -102,7 +102,7 @@ function TimeSlot({ time, selected, available, onClick }) {
   );
 }
 
-function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onHome, onConfirm }) {
+function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onHome, onConfirm, isRescheduling = false, clientData = null }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -195,9 +195,22 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
           </div>
 
           {/* Precio */}
-          <div className="text-center">
-            <p className="text-xl sm:text-2xl font-extrabold text-black">Valor: {APPOINTMENT_PRICE}</p>
-          </div>
+          {!isRescheduling && !clientData && (
+            <div className="text-center">
+              <p className="text-xl sm:text-2xl font-extrabold text-black">Valor: {APPOINTMENT_PRICE}</p>
+            </div>
+          )}
+
+          {isRescheduling && (
+            <div className="text-center bg-[#B8D4A5]/30 rounded-xl p-4 border-2 border-[#B8D4A5]">
+              <p className="text-lg font-bold text-[#3D3229]">
+                ℹ️ Reprogramación sin cargo adicional
+              </p>
+              <p className="text-sm text-[#3D3229]/70 mt-1">
+                El pago ya fue realizado
+              </p>
+            </div>
+          )}
 
           {/* Botones de acción */}
           <div className="space-y-3">
@@ -211,7 +224,7 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
                   : 'bg-[#B8D4A5]/40 text-[#3D3229]/60 cursor-not-allowed'
                 }`}
             >
-              Confirmar turno
+              {isRescheduling ? 'Confirmar reprogramación' : 'Confirmar turno'}
             </button>
             <button
               onClick={onHome}

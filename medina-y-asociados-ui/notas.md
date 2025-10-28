@@ -51,9 +51,9 @@ Búsquedas avanzadas (turnos y clientes)
 La aplicación quedó profesional, funcional y lista para integrarse con el backend cuando sea necesario.
 
 
-# acomoda
-- eliminar boton eliminar cliente
-- pantallas admin
+# acomodar
+[x] eliminar boton eliminar cliente
+[ ] pantallas admin
     - para cambiar el rol del user y agregar matricula y especialidades
     - cambiar precios
 - botones agregar o sacar:
