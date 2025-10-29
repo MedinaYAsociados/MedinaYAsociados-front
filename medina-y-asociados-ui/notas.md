@@ -32,6 +32,13 @@ const USE_MOCK = false;
 
 - Cliente: cliente@test.com / 123456
 - Abogado: abogado@test.com / 123456
+- Admin: admin@test.com / 123456
+
+# usuarios que no son abogados
+
+12345678 → Encuentra a Manuel Veronese
+23456789 → Encuentra a Juan Pérez
+Cualquier otro DNI → Muestra error "No se encontró ningún usuario"
 
 
 # Aplicacion para Medina y Asociados
@@ -57,5 +64,26 @@ La aplicación quedó profesional, funcional y lista para integrarse con el back
     - para cambiar el rol del user y agregar matricula y especialidades
     - cambiar precios
 - botones agregar o sacar:
-- cuando reprogramemos un turno, sea para la hora y la fecha, no la especialdiad y abogado
-- agrergar boton de asisitio o no asisitio
+[x] cuando reprogramemos un turno, sea para la hora y la fecha, no la especialdiad y abogado
+[ ] agrergar boton de asisitio o no asisitio
+
+# 📊 Datos que se envían al confirmar un nuevo abogado:
+
+{
+  ...user,           // Todos los datos del usuario
+  matricula: "...",  // Matrícula ingresada
+  specialties: [...], // Array de IDs de especialidades
+  role: 'lawyer'     // Rol actualizado
+}
+
+# 📊 Datos mock de abogados:
+Cada abogado tiene esta estructura completa:
+{
+  id: 'lawyer-1',
+  name: 'Ramiro Doglio',
+  email: 'ramiro@example.com',
+  matricula: '12345',
+  specialties: ['familia', 'civil'],
+  phone: '3534234567',
+  localidad: 'Capital'
+}

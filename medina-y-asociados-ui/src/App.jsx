@@ -5,6 +5,13 @@ import Register from './components/Register'
 import RegisterSuccess from './components/RegisterSuccess'
 import ClientDashboard from './components/ClientDashboard'
 import LawyerDashboard from './components/LawyerDashboard'
+import AdminDashboard from './components/AdminDashboard'
+import AdminManageLawyers from './components/AdminManageLawyers'
+import AdminCreateLawyer from './components/AdminCreateLawyer'
+import AdminUserFound from './components/AdminUserFound'
+import AdminCreateLawyerForm from './components/AdminCreateLawyerForm'
+import AdminUpdateLawyer from './components/AdminUpdateLawyer'
+import AdminManagePricing from './components/AdminManagePricing'
 import LawyerAppointments from './components/LawyerAppointments'
 import LawyerAppointmentDetail from './components/LawyerAppointmentDetail'
 import LawyerSearchAppointment from './components/LawyerSearchAppointment'
@@ -34,6 +41,8 @@ function App() {
   const [selectedClient, setSelectedClient] = useState(null)
   const [clientSearchResults, setClientSearchResults] = useState([])
   const [clientListView, setClientListView] = useState('lawyer-clients') // Para saber de dónde vino el cliente
+  const [selectedUserToPromote, setSelectedUserToPromote] = useState(null) // Usuario seleccionado para promover a abogado
+  const [selectedLawyerToUpdate, setSelectedLawyerToUpdate] = useState(null) // Abogado seleccionado para actualizar
 
   const handleLoginSuccess = (loggedUser) => {
     setUser(loggedUser);
@@ -136,6 +145,15 @@ function App() {
           onViewAppointments={() => setView('lawyer-appointments')}
           onViewClients={() => setView('lawyer-clients')}
           onViewHistory={() => setView('lawyer-history')}
+          onEditProfile={handleEditProfile}
+        />
+      )}
+      {view === 'dashboard' && user && user.role === 'admin' && (
+        <AdminDashboard
+          user={user}
+          onLogout={handleLogout}
+          onManageLawyers={() => setView('admin-manage-lawyers')}
+          onManagePricing={() => setView('admin-manage-pricing')}
           onEditProfile={handleEditProfile}
         />
       )}
@@ -512,6 +530,97 @@ function App() {
             setView('dashboard'); 
           }}
           onConfirm={handlePaymentRedirect}
+        />
+      )}
+      {view === 'admin-manage-lawyers' && (
+        <AdminManageLawyers
+          onBack={() => setView('dashboard')}
+          onHome={() => setView('dashboard')}
+          onCreateLawyer={() => setView('admin-create-lawyer')}
+          onUpdateLawyer={() => setView('admin-update-lawyer')}
+        />
+      )}
+      {view === 'admin-manage-pricing' && (
+        <AdminManagePricing
+          onBack={() => setView('dashboard')}
+          onHome={() => setView('dashboard')}
+        />
+      )}
+      {view === 'admin-create-lawyer' && (
+        <AdminCreateLawyer
+          onBack={() => setView('admin-manage-lawyers')}
+          onHome={() => setView('dashboard')}
+          onUserFound={(user) => {
+            setSelectedUserToPromote(user);
+            setView('admin-user-found');
+          }}
+        />
+      )}
+      {view === 'admin-user-found' && selectedUserToPromote && (
+        <AdminUserFound
+          user={selectedUserToPromote}
+          onBack={() => setView('admin-create-lawyer')}
+          onHome={() => setView('dashboard')}
+          onConfirm={() => {
+            // Ir al formulario de completar datos del abogado
+            setView('admin-create-lawyer-form');
+          }}
+          onSearchAgain={() => {
+            setSelectedUserToPromote(null);
+            setView('admin-create-lawyer');
+          }}
+        />
+      )}
+      {view === 'admin-create-lawyer-form' && selectedUserToPromote && (
+        <AdminCreateLawyerForm
+          user={selectedUserToPromote}
+          onBack={() => setView('admin-user-found')}
+          onHome={() => setView('dashboard')}
+          onConfirm={(lawyerData) => {
+            // TODO: Enviar datos al backend para crear el abogado
+            console.log('Abogado creado exitosamente:', lawyerData);
+            alert(`¡Abogado creado exitosamente!\n\nNombre: ${lawyerData.name}\nMatrícula: ${lawyerData.matricula}\nEspecialidades: ${lawyerData.specialties.length}`);
+            setSelectedUserToPromote(null);
+            setView('admin-manage-lawyers');
+          }}
+          onCancel={() => {
+            if (confirm('¿Está seguro que desea cancelar la creación del abogado?')) {
+              setSelectedUserToPromote(null);
+              setView('admin-manage-lawyers');
+            }
+          }}
+        />
+      )}
+      {view === 'admin-update-lawyer' && (
+        <AdminUpdateLawyer
+          onBack={() => setView('admin-manage-lawyers')}
+          onHome={() => setView('dashboard')}
+          onSelectLawyer={(lawyer) => {
+            setSelectedLawyerToUpdate(lawyer);
+            setView('admin-update-lawyer-form');
+          }}
+        />
+      )}
+      {view === 'admin-update-lawyer-form' && selectedLawyerToUpdate && (
+        <AdminUpdateLawyerForm
+          lawyer={selectedLawyerToUpdate}
+          onUpdate={(updatedLawyer) => {
+            // TODO: Enviar datos al backend para actualizar el abogado
+            console.log('Abogado actualizado:', updatedLawyer);
+            alert(`¡Abogado actualizado exitosamente!\n\nNombre: ${updatedLawyer.name}\nMatrícula: ${updatedLawyer.matricula}\nEspecialidades: ${updatedLawyer.specialties.length}`);
+            setSelectedLawyerToUpdate(null);
+            setView('admin-manage-lawyers');
+          }}
+          onCancel={() => {
+            if (confirm('¿Está seguro que desea cancelar la edición del abogado?')) {
+              setSelectedLawyerToUpdate(null);
+              setView('admin-manage-lawyers');
+            }
+          }}
+          onGoHome={() => {
+            setSelectedLawyerToUpdate(null);
+            setView('dashboard');
+          }}
         />
       )}
     </>

@@ -21,6 +21,14 @@ const MOCK_USERS = {
     role: 'lawyer',
     name: 'Dr. Alejandro Forneris',
     id: 'lawyer-1'
+  },
+  // Admin
+  'admin@test.com': {
+    email: 'admin@test.com',
+    password: '123456',
+    role: 'admin',
+    name: 'Administrador',
+    id: 'admin-1'
   }
 };
 
