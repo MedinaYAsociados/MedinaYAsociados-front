@@ -7,7 +7,7 @@ function ClientResultCard({ client, onClick }) {
       className="w-full rounded-2xl shadow-soft bg-white/70 backdrop-blur-sm overflow-hidden hover:shadow-medium transition-shadow"
     >
       <div className="p-4">
-        <p className="text-[#3D3229] text-xl font-bold text-center">{client.name}</p>
+        <p className="text-[#3D3229] text-xl font-bold text-center">{client.name || `${client.nombre || ''} ${client.apellido || ''}`}</p>
       </div>
     </button>
   );

@@ -9,7 +9,11 @@ function LawyerSearchResults({ results = [], onBack, onHome, onViewAppointment }
       'pending': 'bg-[#E8DCC4]',
       'confirmed': 'bg-[#B8D4B8]',
       'completed': 'bg-[#A5C4D4]',
-      'rescheduled': 'bg-[#D4C4A5]'
+      'rescheduled': 'bg-[#D4C4A5]',
+      'attended': 'bg-[#8FBC8F]',
+      'no-show': 'bg-[#D4A5A5]',
+      'paid': 'bg-[#D4C4A5]',
+      'in-progress': 'bg-[#A5C4D4]'
     };
     return colors[status] || 'bg-gray-300';
   };
@@ -20,7 +24,11 @@ function LawyerSearchResults({ results = [], onBack, onHome, onViewAppointment }
       'pending': 'Pendiente',
       'confirmed': 'Confirmado',
       'completed': 'Completado',
-      'rescheduled': 'Reprogramado'
+      'rescheduled': 'Reprogramado',
+      'attended': 'Asistió',
+      'no-show': 'No Asistió',
+      'paid': 'Pagado',
+      'in-progress': 'En Curso'
     };
     return labels[status] || status;
   };

@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { formatAppointmentDate } from '../utils/date';
 
 function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, onCancel, onConfirm }) {
+  const [localStatus, setLocalStatus] = useState(appointment?.status);
+
   if (!appointment) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">
@@ -20,8 +24,14 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
     phone: '3534123123'
   };
 
-  const appointmentDate = '12/12/2025';
-  const appointmentTime = '13.00hs';
+  const apptDate = new Date(appointment.date);
+  const appointmentDate = formatAppointmentDate(appointment.date);
+  const appointmentTime = `${String(apptDate.getHours()).padStart(2, '0')}.${String(apptDate.getMinutes()).padStart(2, '0')}hs`;
+  const isPastAppointment = apptDate < new Date();
+  const canMarkAttendance = isPastAppointment && (localStatus === 'confirmed' || localStatus === 'pending');
+  const canMarkPaid = localStatus === 'confirmed' || localStatus === 'attended';
+  const canMarkInProgress = localStatus === 'paid';
+  const canMarkCompleted = localStatus === 'in-progress';
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
@@ -91,6 +101,57 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
 
         {/* Botones de acción */}
         <div className="mt-6 space-y-3 animate-slide-up">
+          {/* Asistencia */}
+          {canMarkAttendance && (
+            <div className="flex gap-3">
+              <button
+                onClick={() => setLocalStatus('attended')}
+                className="flex-1 px-4 py-3.5 bg-[#8FBC8F]/80 hover:bg-[#7FA97F] border-2 border-[#3D3229] text-white 
+                         font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                         transition-all focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
+              >
+                ✓ Asistió
+              </button>
+              <button
+                onClick={() => setLocalStatus('no-show')}
+                className="flex-1 px-4 py-3.5 bg-[#D4A5A5]/80 hover:bg-[#C99595] border-2 border-[#3D3229] text-white 
+                         font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                         transition-all focus:outline-none focus:ring-4 focus:ring-[#D4A5A5]/30"
+              >
+                ✗ No Asistió
+              </button>
+            </div>
+          )}
+          {canMarkPaid && (
+            <button
+              onClick={() => setLocalStatus('paid')}
+              className="w-full px-6 py-3.5 bg-[#D4C4A5]/80 hover:bg-[#C9B896] border-2 border-[#3D3229] text-[#3D3229]
+                       font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                       transition-all focus:outline-none focus:ring-4 focus:ring-[#D4C4A5]/30"
+            >
+              Marcar Pagado
+            </button>
+          )}
+          {canMarkInProgress && (
+            <button
+              onClick={() => setLocalStatus('in-progress')}
+              className="w-full px-6 py-3.5 bg-[#A5C4D4]/80 hover:bg-[#95B4C4] border-2 border-[#3D3229] text-white
+                       font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                       transition-all focus:outline-none focus:ring-4 focus:ring-[#A5C4D4]/30"
+            >
+              En Curso
+            </button>
+          )}
+          {canMarkCompleted && (
+            <button
+              onClick={() => setLocalStatus('completed')}
+              className="w-full px-6 py-3.5 bg-[#8FBC8F]/80 hover:bg-[#7FA97F] border-2 border-[#3D3229] text-white
+                       font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                       transition-all focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
+            >
+              Finalizar
+            </button>
+          )}
           <button
             onClick={onReschedule}
             className="w-full px-6 py-3.5 bg-[#9C8B78]/70 hover:bg-[#9C8B78]/90 border-2 border-[#3D3229] text-white 
@@ -126,18 +187,26 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
             </button>
             <div className={`flex-1 px-4 py-3 border border-[#3D3229]/30 text-[#3D3229] 
                              font-semibold text-base rounded-xl ${
-                               appointment.status === 'cancelled' ? 'bg-[#D4A5A5]/70' :
-                               appointment.status === 'pending' ? 'bg-[#E8DCC4]/70' :
-                               appointment.status === 'confirmed' ? 'bg-[#B8D4B8]/70' :
-                               appointment.status === 'completed' ? 'bg-[#A5C4D4]/70' :
-                               appointment.status === 'rescheduled' ? 'bg-[#D4C4A5]/70' :
-                               'bg-white/70'
-                             }`}>
-              {appointment.status === 'cancelled' ? 'Cancelado' :
-               appointment.status === 'pending' ? 'Pendiente' :
-               appointment.status === 'confirmed' ? 'Confirmado' :
-               appointment.status === 'completed' ? 'Completado' :
-               appointment.status === 'rescheduled' ? 'Reprog.' :
+                               localStatus === 'cancelled' ? 'bg-[#D4A5A5]/70' :
+                               localStatus === 'pending' ? 'bg-[#E8DCC4]/70' :
+                               localStatus === 'confirmed' ? 'bg-[#B8D4B8]/70' :
+                               localStatus === 'completed' ? 'bg-[#A5C4D4]/70' :
+                               localStatus === 'rescheduled' ? 'bg-[#D4C4A5]/70' :
+                                localStatus === 'attended' ? 'bg-[#8FBC8F]/70' :
+                                localStatus === 'no-show' ? 'bg-[#D4A5A5]/70' :
+                                localStatus === 'paid' ? 'bg-[#D4C4A5]/70' :
+                                localStatus === 'in-progress' ? 'bg-[#A5C4D4]/70' :
+                                'bg-white/70'
+                              }`}>
+              {localStatus === 'cancelled' ? 'Cancelado' :
+               localStatus === 'pending' ? 'Pendiente' :
+               localStatus === 'confirmed' ? 'Confirmado' :
+               localStatus === 'completed' ? 'Completado' :
+               localStatus === 'rescheduled' ? 'Reprog.' :
+               localStatus === 'attended' ? 'Asistió' :
+               localStatus === 'no-show' ? 'No Asistió' :
+               localStatus === 'paid' ? 'Pagado' :
+               localStatus === 'in-progress' ? 'En Curso' :
                'Sin estado'}
             </div>
           </div>

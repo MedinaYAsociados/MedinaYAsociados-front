@@ -9,7 +9,11 @@ const getStatusColor = (status) => {
     pending: 'bg-[#E8DCC4]/70',
     confirmed: 'bg-[#B8D4B8]/70',
     completed: 'bg-[#A5C4D4]/70',
-    rescheduled: 'bg-[#D4C4A5]/70'
+    rescheduled: 'bg-[#D4C4A5]/70',
+    attended: 'bg-[#8FBC8F]/70',
+    'no-show': 'bg-[#D4A5A5]/70',
+    paid: 'bg-[#D4C4A5]/70',
+    'in-progress': 'bg-[#A5C4D4]/70'
   };
   return colors[status] || 'bg-white/70';
 };
@@ -20,7 +24,11 @@ const getStatusLabel = (status) => {
     pending: 'Pendiente',
     confirmed: 'Confirmado',
     completed: 'Completado',
-    rescheduled: 'Reprog.'
+    rescheduled: 'Reprog.',
+    attended: 'Asistió',
+    'no-show': 'No Asistió',
+    paid: 'Pagado',
+    'in-progress': 'En Curso'
   };
   return labels[status] || status;
 };

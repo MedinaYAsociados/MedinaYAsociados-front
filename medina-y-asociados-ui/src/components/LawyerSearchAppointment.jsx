@@ -46,7 +46,11 @@ function LawyerSearchAppointment({ onBack, onHome, onSearch }) {
     { value: 'confirmed', label: 'Confirmado' },
     { value: 'completed', label: 'Completado' },
     { value: 'cancelled', label: 'Cancelado' },
-    { value: 'rescheduled', label: 'Reprogramado' }
+    { value: 'rescheduled', label: 'Reprogramado' },
+    { value: 'attended', label: 'Asistió' },
+    { value: 'no-show', label: 'No Asistió' },
+    { value: 'paid', label: 'Pagado' },
+    { value: 'in-progress', label: 'En Curso' }
   ];
 
   return (

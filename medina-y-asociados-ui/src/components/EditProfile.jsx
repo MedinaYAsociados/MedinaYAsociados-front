@@ -1,20 +1,59 @@
 import { useState } from 'react';
-import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { MdOutlineArrowBack, MdHome, MdCheckCircle, MdCancel, MdSchedule, MdMoneyOff } from 'react-icons/md';
+
+const statusIcons = {
+  CONFIRMADO: MdCheckCircle,
+  COMPLETADO: MdCheckCircle,
+  CANCELADO: MdCancel,
+  PENDIENTE: MdSchedule,
+  EXPIRO_PAGO: MdMoneyOff,
+};
+
+const statusColors = {
+  CONFIRMADO: 'text-green-700 bg-green-100',
+  COMPLETADO: 'text-blue-700 bg-blue-100',
+  CANCELADO: 'text-red-700 bg-red-100',
+  PENDIENTE: 'text-yellow-700 bg-yellow-100',
+  EXPIRO_PAGO: 'text-orange-700 bg-orange-100',
+};
+
+function StatCard({ nombre, cantidad }) {
+  const Icon = statusIcons[nombre] || MdSchedule;
+  const color = statusColors[nombre] || 'text-gray-700 bg-gray-100';
+  return (
+    <div className="bg-white/90 rounded-xl shadow-soft p-3 flex items-center gap-3">
+      <div className={`p-2 rounded-lg ${color}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[#3D3229] text-sm font-semibold truncate">
+          {nombre === 'EXPIRO_PAGO' ? 'Pagos vencidos' :
+           nombre === 'CONFIRMADO' ? 'Confirmados' :
+           nombre === 'COMPLETADO' ? 'Completados' :
+           nombre === 'CANCELADO' ? 'Cancelados' :
+           nombre === 'PENDIENTE' ? 'Pendientes' : nombre}
+        </p>
+        <p className="text-[#3D3229] text-2xl font-bold">{cantidad}</p>
+      </div>
+    </div>
+  );
+}
 
 function EditProfile({ user, onBack, onHome, onSave }) {
-  const [form, setForm] = useState({
-    nombre: user?.name?.split(' ')[0] || '',
-    apellido: user?.name?.split(' ').slice(1).join(' ') || '',
+  const formInitial = {
+    nombre: user?.nombre || user?.name?.split(' ')[0] || '',
+    apellido: user?.apellido || user?.name?.split(' ').slice(1).join(' ') || '',
     dni: user?.dni || '',
     telefono: user?.telefono || '',
-    localidad: user?.localidad || '',
-    calle: user?.calle || '',
-    numero: user?.numero || '',
+    localidad: user?.localidad?.nombreLocalidad || user?.localidad || '',
+    calle: user?.direccion?.calle || user?.calle || '',
+    numero: user?.direccion?.numeroCalle?.toString() || user?.numero || '',
     piso: user?.piso || '',
     departamento: user?.departamento || '',
     email: user?.email || '',
     password: '',
-  });
+  };
+  const [form, setForm] = useState(formInitial);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -78,11 +117,23 @@ function EditProfile({ user, onBack, onHome, onSave }) {
           </button>
         </div>
 
+        {/* Estadísticas del cliente */}
+        {user?.turnosPorEstado && user.turnosPorEstado.length > 0 && (
+          <div className="bg-[#D4C3A4]/70 rounded-3xl p-5 sm:p-6 animate-slide-up space-y-3" style={{ animationDelay: '50ms' }}>
+            <h3 className="text-lg font-bold text-[#3D3229] text-center">Estadísticas de turnos</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {user.turnosPorEstado.map((stat) => (
+                <StatCard key={stat.nombre} nombre={stat.nombre} cantidad={stat.cantidad} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Card Formulario */}
-        <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-6 sm:p-8 space-y-5 animate-slide-up">
+        <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-6 sm:p-8 space-y-5 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-[#3D3229]">Editar perfil</h2>
-            <p className="text-[#3D3229]/80 text-sm sm:text-base">Regístrate para solicitar un turno</p>
+            <p className="text-[#3D3229]/80 text-sm sm:text-base">Actualiza tus datos personales</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

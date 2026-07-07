@@ -11,11 +11,16 @@ function AppointmentDetail({ appointment, onBack, onHome, onReschedule, onCancel
     confirmed: 'Confirmado',
     completed: 'Completado',
     cancelled: 'Cancelado',
-    rescheduled: 'Reprogramado'
+    rescheduled: 'Reprogramado',
+    attended: 'Asistió',
+    'no-show': 'No Asistió',
+    paid: 'Pagado',
+    'in-progress': 'En Curso'
   };
 
-  const canReschedule = appointment.status !== 'completed' && appointment.status !== 'cancelled';
-  const canCancel = appointment.status !== 'completed' && appointment.status !== 'cancelled';
+  const terminalStatuses = ['completed', 'cancelled', 'attended', 'no-show', 'paid', 'in-progress'];
+  const canReschedule = !terminalStatuses.includes(appointment.status);
+  const canCancel = !terminalStatuses.includes(appointment.status);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">

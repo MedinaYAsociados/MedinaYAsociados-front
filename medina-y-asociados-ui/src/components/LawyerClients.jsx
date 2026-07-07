@@ -18,68 +18,96 @@ function LawyerClients({ onBack, onHome, onSearchClient, onViewClient, user = { 
   const clients = [
     {
       id: 5,
+      nombre: 'Catalina',
+      apellido: 'Pereira',
       name: 'Catalina Pereira',
+      telefono: '3534567890',
       phone: '3534567890',
       email: 'catalina@gmail.com',
       dni: '56789012',
-      localidad: 'Luján',
-      calle: 'Belgrano',
-      numero: '456',
+      localidad: { nombreLocalidad: 'Luján', codigoPostal: '5500' },
+      direccion: { calle: 'Belgrano', numeroCalle: 456, provincia: 'Córdoba', piso: '2', departamento: 'B' },
       piso: '2',
       departamento: 'B',
-      registeredAt: new Date('2025-10-22')
+      registeredAt: new Date('2025-10-22'),
+      turnosPorEstado: [
+        { nombre: 'CONFIRMADO', cantidad: 1 },
+        { nombre: 'COMPLETADO', cantidad: 3 }
+      ]
     },
     {
       id: 4,
+      nombre: 'Santiago',
+      apellido: 'Gonzales',
       name: 'Santiago Gonzales',
+      telefono: '3534456789',
       phone: '3534456789',
       email: 'santiago@gmail.com',
       dni: '45678901',
-      localidad: 'Guaymallén',
-      calle: 'Mitre',
-      numero: '789',
-      piso: '',
-      departamento: '',
-      registeredAt: new Date('2025-10-20')
+      localidad: { nombreLocalidad: 'Guaymallén', codigoPostal: '5519' },
+      direccion: { calle: 'Mitre', numeroCalle: 789, provincia: 'Córdoba' },
+      registeredAt: new Date('2025-10-20'),
+      turnosPorEstado: [
+        { nombre: 'COMPLETADO', cantidad: 2 },
+        { nombre: 'CANCELADO', cantidad: 1 }
+      ]
     },
     {
       id: 3,
+      nombre: 'Juan',
+      apellido: 'Perez',
       name: 'Juan Perez',
+      telefono: '3534345678',
       phone: '3534345678',
       email: 'juan@gmail.com',
       dni: '34567890',
-      localidad: 'Capital',
-      calle: 'San Martín',
-      numero: '321',
+      localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
+      direccion: { calle: 'San Martín', numeroCalle: 321, provincia: 'Córdoba', piso: '1', departamento: 'A' },
       piso: '1',
       departamento: 'A',
-      registeredAt: new Date('2025-10-18')
+      registeredAt: new Date('2025-10-18'),
+      turnosPorEstado: [
+        { nombre: 'CONFIRMADO', cantidad: 1 },
+        { nombre: 'COMPLETADO', cantidad: 4 },
+        { nombre: 'EXPIRO_PAGO', cantidad: 1 }
+      ]
     },
     {
       id: 2,
+      nombre: 'Manuel',
+      apellido: 'Veronese',
       name: 'Manuel Veronese',
+      telefono: '3534123123',
       phone: '3534123123',
       email: 'manuelveronese@gmail.com',
       dni: '23456789',
-      localidad: 'Villa Maria',
-      calle: 'America',
-      numero: '1256',
-      piso: '',
-      departamento: '',
-      registeredAt: new Date('2025-10-15')
+      localidad: { nombreLocalidad: 'VILLA MARIA', codigoPostal: '5900' },
+      direccion: { calle: 'America', numeroCalle: 1256, provincia: 'Córdoba' },
+      registeredAt: new Date('2025-10-15'),
+      turnosPorEstado: [
+        { nombre: 'COMPLETADO', cantidad: 6 },
+        { nombre: 'PENDIENTE', cantidad: 2 }
+      ]
     },
     {
       id: 1,
+      nombre: 'Ramiro',
+      apellido: 'Doglio',
       name: 'Ramiro Doglio',
+      telefono: '3534234567',
       phone: '3534234567',
       email: 'ramiro@gmail.com',
       dni: '12345678',
-      localidad: 'Capital',
-      calle: 'Carlos Pelegrini',
-      numero: '865',
+      localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
+      direccion: { calle: 'Carlos Pelegrini', numeroCalle: 865, provincia: 'Córdoba', piso: '1', departamento: '1' },
       piso: '1',
       departamento: '1',
-      registeredAt: new Date('2025-10-10')
+      registeredAt: new Date('2025-10-10'),
+      turnosPorEstado: [
+        { nombre: 'CONFIRMADO', cantidad: 2 },
+        { nombre: 'COMPLETADO', cantidad: 5 },
+        { nombre: 'CANCELADO', cantidad: 1 }
+      ]
     }
   ];
 

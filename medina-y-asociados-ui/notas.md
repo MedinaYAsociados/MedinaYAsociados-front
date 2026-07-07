@@ -15,7 +15,7 @@ comandos:
 
 1. Configurar el base URL
 - Crea un archivo .env en medina-y-asociados-ui con:
-VITE_API_BASE_URL=http://localhost:8080/api
+VITE_API_BASE_URL=http://localhost:5173/api
 - Reinicia el servidor de Vite.
 2. Cambiar a modo real
 

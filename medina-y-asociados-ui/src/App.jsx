@@ -27,9 +27,10 @@ import NewAppointmentLawyer from './components/NewAppointmentLawyer'
 import NewAppointmentDateTime from './components/NewAppointmentDateTime'
 import AppointmentDetail from './components/AppointmentDetail'
 import EditProfile from './components/EditProfile'
+import RoleSelector from './components/RoleSelector'
 
 function App() {
-  const [view, setView] = useState('login') // 'login' | 'register' | 'success' | 'dashboard' | 'edit-profile' | 'lawyer-appointments' | 'lawyer-appointment-detail' | 'lawyer-history' | 'lawyer-clients' | 'lawyer-client-detail' | 'lawyer-search-client' | 'lawyer-search-client-results' | 'lawyer-search' | 'lawyer-search-results' | 'lawyer-new-client' | 'new-specialty' | 'new-lawyer' | 'new-datetime' | 'appointment-detail'
+  const [view, setView] = useState('login') // 'login' | 'register' | 'success' | 'role-selector' | 'dashboard' | 'edit-profile' | 'lawyer-appointments' | 'lawyer-appointment-detail' | 'lawyer-history' | 'lawyer-clients' | 'lawyer-client-detail' | 'lawyer-search-client' | 'lawyer-search-client-results' | 'lawyer-search' | 'lawyer-search-results' | 'lawyer-new-client' | 'new-specialty' | 'new-lawyer' | 'new-datetime' | 'appointment-detail'
   const [user, setUser] = useState(null)
   const [selectedSpecialty, setSelectedSpecialty] = useState(null)
   const [selectedLawyer, setSelectedLawyer] = useState(null)
@@ -46,12 +47,29 @@ function App() {
 
   const handleLoginSuccess = (loggedUser) => {
     setUser(loggedUser);
+    if (loggedUser.roles && loggedUser.roles.length > 1) {
+      setView('role-selector');
+    } else {
+      setView('dashboard');
+    }
+  };
+
+  const handleSelectRole = (selectedRole) => {
+    setUser(prev => ({ ...prev, role: selectedRole }));
     setView('dashboard');
   };
 
   const handleLogout = () => {
     setUser(null);
     setView('login');
+  };
+
+  const handleDashboardBack = () => {
+    if (user && user.roles && user.roles.length > 1) {
+      setView('role-selector');
+    } else {
+      handleLogout();
+    }
   };
 
   const handlePaymentRedirect = (appointmentData) => {
@@ -130,6 +148,13 @@ function App() {
       {view === 'success' && (
         <RegisterSuccess onGoLogin={() => setView('login')} />
       )}
+      {view === 'role-selector' && user && user.roles && user.roles.length > 1 && (
+        <RoleSelector
+          roles={user.roles}
+          onSelectRole={handleSelectRole}
+          onLogout={handleLogout}
+        />
+      )}
       {view === 'dashboard' && user && user.role === 'client' && (
         <ClientDashboard 
           onLogout={handleLogout} 
@@ -141,7 +166,7 @@ function App() {
       {view === 'dashboard' && user && user.role === 'lawyer' && (
         <LawyerDashboard
           user={user}
-          onLogout={handleLogout}
+          onLogout={handleDashboardBack}
           onViewAppointments={() => setView('lawyer-appointments')}
           onViewClients={() => setView('lawyer-clients')}
           onViewHistory={() => setView('lawyer-history')}
@@ -151,7 +176,7 @@ function App() {
       {view === 'dashboard' && user && user.role === 'admin' && (
         <AdminDashboard
           user={user}
-          onLogout={handleLogout}
+          onLogout={handleDashboardBack}
           onManageLawyers={() => setView('admin-manage-lawyers')}
           onManagePricing={() => setView('admin-manage-pricing')}
           onEditProfile={handleEditProfile}
@@ -206,89 +231,58 @@ function App() {
             
             // Mock de clientes para búsqueda
             const allClients = [
-              { 
-                id: 1, 
-                name: 'Ramiro Doglio', 
-                dni: '12345678', 
-                localidad: 'Capital',
-                phone: '3534234567',
-                email: 'ramiro@gmail.com',
-                calle: 'Carlos Pelegrini',
-                numero: '865',
-                piso: '1',
-                departamento: '1'
+              {
+                id: 1, nombre: 'Ramiro', apellido: 'Doglio', name: 'Ramiro Doglio',
+                dni: '12345678', telefono: '3534234567', phone: '3534234567', email: 'ramiro@gmail.com',
+                direccion: { calle: 'Carlos Pelegrini', numeroCalle: 865, provincia: 'Córdoba', piso: '1', departamento: '1' },
+                localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
+                piso: '1', departamento: '1',
+                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 2 }, { nombre: 'COMPLETADO', cantidad: 5 }]
               },
-              { 
-                id: 2, 
-                name: 'Manuel Veronese', 
-                dni: '23456789', 
-                localidad: 'Villa Maria',
-                phone: '3534123123',
-                email: 'manuelveronese@gmail.com',
-                calle: 'America',
-                numero: '1256',
-                piso: '',
-                departamento: ''
+              {
+                id: 2, nombre: 'Manuel', apellido: 'Veronese', name: 'Manuel Veronese',
+                dni: '23456789', telefono: '3534123123', phone: '3534123123', email: 'manuelveronese@gmail.com',
+                direccion: { calle: 'America', numeroCalle: 1256, provincia: 'Córdoba' },
+                localidad: { nombreLocalidad: 'VILLA MARIA', codigoPostal: '5900' },
+                turnosPorEstado: [{ nombre: 'COMPLETADO', cantidad: 6 }, { nombre: 'PENDIENTE', cantidad: 2 }]
               },
-              { 
-                id: 3, 
-                name: 'Juan Perez', 
-                dni: '34567890', 
-                localidad: 'Capital',
-                phone: '3534345678',
-                email: 'juan@gmail.com',
-                calle: 'San Martín',
-                numero: '321',
-                piso: '1',
-                departamento: 'A'
+              {
+                id: 3, nombre: 'Juan', apellido: 'Perez', name: 'Juan Perez',
+                dni: '34567890', telefono: '3534345678', phone: '3534345678', email: 'juan@gmail.com',
+                direccion: { calle: 'San Martín', numeroCalle: 321, provincia: 'Córdoba', piso: '1', departamento: 'A' },
+                localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
+                piso: '1', departamento: 'A',
+                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 1 }, { nombre: 'COMPLETADO', cantidad: 4 }, { nombre: 'EXPIRO_PAGO', cantidad: 1 }]
               },
-              { 
-                id: 4, 
-                name: 'Santiago Gonzales', 
-                dni: '45678901', 
-                localidad: 'Guaymallén',
-                phone: '3534456789',
-                email: 'santiago@gmail.com',
-                calle: 'Mitre',
-                numero: '789',
-                piso: '',
-                departamento: ''
+              {
+                id: 4, nombre: 'Santiago', apellido: 'Gonzales', name: 'Santiago Gonzales',
+                dni: '45678901', telefono: '3534456789', phone: '3534456789', email: 'santiago@gmail.com',
+                direccion: { calle: 'Mitre', numeroCalle: 789, provincia: 'Córdoba' },
+                localidad: { nombreLocalidad: 'Guaymallén', codigoPostal: '5519' },
+                turnosPorEstado: [{ nombre: 'COMPLETADO', cantidad: 2 }, { nombre: 'CANCELADO', cantidad: 1 }]
               },
-              { 
-                id: 5, 
-                name: 'Catalina Pereira', 
-                dni: '56789012', 
-                localidad: 'Luján',
-                phone: '3534567890',
-                email: 'catalina@gmail.com',
-                calle: 'Belgrano',
-                numero: '456',
-                piso: '2',
-                departamento: 'B'
+              {
+                id: 5, nombre: 'Catalina', apellido: 'Pereira', name: 'Catalina Pereira',
+                dni: '56789012', telefono: '3534567890', phone: '3534567890', email: 'catalina@gmail.com',
+                direccion: { calle: 'Belgrano', numeroCalle: 456, provincia: 'Córdoba', piso: '2', departamento: 'B' },
+                localidad: { nombreLocalidad: 'Luján', codigoPostal: '5500' },
+                piso: '2', departamento: 'B',
+                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 1 }, { nombre: 'COMPLETADO', cantidad: 3 }]
               },
-              { 
-                id: 6, 
-                name: 'María González', 
-                dni: '67890123', 
-                localidad: 'Capital',
-                phone: '3534678901',
-                email: 'maria@gmail.com',
-                calle: 'Rivadavia',
-                numero: '123',
-                piso: '3',
-                departamento: 'C'
+              {
+                id: 6, nombre: 'María', apellido: 'González', name: 'María González',
+                dni: '67890123', telefono: '3534678901', phone: '3534678901', email: 'maria@gmail.com',
+                direccion: { calle: 'Rivadavia', numeroCalle: 123, provincia: 'Córdoba', piso: '3', departamento: 'C' },
+                localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
+                piso: '3', departamento: 'C',
+                turnosPorEstado: [{ nombre: 'COMPLETADO', cantidad: 3 }]
               },
-              { 
-                id: 7, 
-                name: 'Carlos Ramírez', 
-                dni: '78901234', 
-                localidad: 'Godoy Cruz',
-                phone: '3534789012',
-                email: 'carlos@gmail.com',
-                calle: 'Las Heras',
-                numero: '654',
-                piso: '',
-                departamento: ''
+              {
+                id: 7, nombre: 'Carlos', apellido: 'Ramírez', name: 'Carlos Ramírez',
+                dni: '78901234', telefono: '3534789012', phone: '3534789012', email: 'carlos@gmail.com',
+                direccion: { calle: 'Las Heras', numeroCalle: 654, provincia: 'Córdoba' },
+                localidad: { nombreLocalidad: 'Godoy Cruz', codigoPostal: '5501' },
+                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 1 }]
               }
             ];
 
@@ -296,9 +290,11 @@ function App() {
             let filtered = allClients;
             
             if (filters.name.trim()) {
-              filtered = filtered.filter(c => 
-                c.name.toLowerCase().includes(filters.name.toLowerCase())
-              );
+              const term = filters.name.toLowerCase();
+              filtered = filtered.filter(c => {
+                const fullName = c.name || `${c.nombre || ''} ${c.apellido || ''}`;
+                return fullName.toLowerCase().includes(term);
+              });
             }
             
             if (filters.dni.trim()) {
@@ -308,9 +304,11 @@ function App() {
             }
             
             if (filters.localidad.trim()) {
-              filtered = filtered.filter(c => 
-                c.localidad.toLowerCase().includes(filters.localidad.toLowerCase())
-              );
+              const term = filters.localidad.toLowerCase();
+              filtered = filtered.filter(c => {
+                const loc = c.localidad?.nombreLocalidad || c.localidad || '';
+                return loc.toLowerCase().includes(term);
+              });
             }
 
             setClientSearchResults(filtered);

@@ -8,11 +8,34 @@ const USE_MOCK = true; // Set to false to use real backend API
 const MOCK_USERS = {
   // Cliente
   'cliente@test.com': {
+    idUsuario: 1,
+    nombre: 'Juan',
+    apellido: 'Pérez',
+    dni: '12345678',
+    telefono: '3534234567',
     email: 'cliente@test.com',
     password: '123456',
     role: 'client',
     name: 'Juan Pérez',
-    id: 'user-1'
+    id: 'user-1',
+    direccion: {
+      idDireccion: 1,
+      calle: 'San Martín',
+      numeroCalle: 321,
+      localidad: 1,
+      provincia: 'Córdoba'
+    },
+    localidad: {
+      idLocalidad: 1,
+      nombreLocalidad: 'CAPITAL',
+      codigoPostal: '5000'
+    },
+    turnosPorEstado: [
+      { nombre: 'CONFIRMADO', cantidad: 2 },
+      { nombre: 'COMPLETADO', cantidad: 5 },
+      { nombre: 'CANCELADO', cantidad: 1 },
+      { nombre: 'EXPIRO_PAGO', cantidad: 0 }
+    ]
   },
   // Abogado
   'abogado@test.com': {
@@ -22,10 +45,11 @@ const MOCK_USERS = {
     name: 'Dr. Alejandro Forneris',
     id: 'lawyer-1'
   },
-  // Admin
+  // Admin (también es abogado — prueba de múltiples roles)
   'admin@test.com': {
     email: 'admin@test.com',
     password: '123456',
+    roles: ['admin', 'lawyer'],
     role: 'admin',
     name: 'Administrador',
     id: 'admin-1'
@@ -46,6 +70,9 @@ async function mockLogin({ email, password }) {
   
   // Return user without password
   const { password: _, ...userWithoutPassword } = user;
+  if (!userWithoutPassword.roles) {
+    userWithoutPassword.roles = [userWithoutPassword.role];
+  }
   return { 
     token: 'mock-token-' + user.id, 
     user: userWithoutPassword 
@@ -72,6 +99,16 @@ async function mockRegister(payload) {
 async function realLogin({ email, password }) {
   const res = await api.post('/auth/login', { email, password });
   if (res?.token) setAuthToken(res.token);
+  // Normalizar respuesta del backend: { token, roles: ["ABOGADO","ADMIN"] }
+  // a la estructura interna: { token, user: { role, roles, ... } }
+  if (res && !res.user && res.roles) {
+    res.user = {
+      roles: res.roles.map(r => r.toLowerCase()),
+      role: res.roles[0]?.toLowerCase(),
+      name: email.split('@')[0],
+      email,
+    };
+  }
   return res;
 }
 

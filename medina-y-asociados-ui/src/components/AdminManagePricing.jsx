@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 
-export default function AdminManagePricing({ onBack, onHome }) {
-  // Mock: precio actual
+function AdminManagePricing({ onBack, onHome }) {
   const [currentPrice, setCurrentPrice] = useState(10000);
   const [newPrice, setNewPrice] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
@@ -21,62 +21,108 @@ export default function AdminManagePricing({ onBack, onHome }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#e2ceaa] rounded-4xl">
-      <div className="w-[370px] p-6 rounded-3xl bg-[#cdb88f] flex flex-col items-center shadow-lg">
-        {/* Header */}
-        <div className="flex w-full justify-between mb-2">
-          <button onClick={onBack} className="text-3xl text-[#3d3d3d] hover:scale-110 transition">←</button>
-          <button onClick={onHome} className="text-3xl text-[#3d3d3d] hover:scale-110 transition">🏠</button>
-        </div>
-        <h2 className="text-3xl font-bold text-[#3d3d3d] mb-8 text-center">Gestionar precios</h2>
-        {/* Precio actual */}
-        <div className="w-full mb-6">
-          <div className="bg-[#f7f3ea] rounded-t-2xl px-4 py-2 text-xl font-semibold text-center">Precio actual</div>
-          <div className="bg-[#d9d9d9] rounded-b-2xl px-4 py-2 text-xl font-bold text-center shadow">{currentPrice.toLocaleString()} ARS</div>
-        </div>
-        {/* Nuevo precio */}
-        <div className="w-full mb-8">
-          <div className="bg-[#f7f3ea] rounded-t-2xl px-4 pt-2 pb-0 text-xl font-semibold text-left">Nuevo Precio:</div>
-          <div className="bg-[#f7f3ea] rounded-b-2xl px-4 pb-2 pt-2 flex items-center">
-            <input
-              className="w-full bg-[#d9d9d9] rounded-2xl px-3 py-2 text-xl font-semibold text-[#7c7c7c] focus:outline-none"
-              type="number"
-              min="0"
-              placeholder="escriba aqui"
-              value={newPrice}
-              onChange={e => setNewPrice(e.target.value)}
-            />
-          </div>
-        </div>
-        {/* Botones */}
-        <button
-          className="w-full py-3 mb-3 rounded-2xl bg-[#b6e7b0] text-white text-xl font-bold shadow hover:scale-[1.03] transition"
-          onClick={handleConfirm}
-        >
-          Confirmar precio
-        </button>
-        <button
-          className="w-full py-3 rounded-2xl bg-[#a98c6f] text-white text-xl font-bold shadow hover:scale-[1.03] transition border border-[#7c5c3b]"
-          onClick={onBack}
-        >
-          Cancelar precio
-        </button>
-      </div>
-      {/* Mensaje de confirmación */}
-      {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
-          <div className="bg-[#f7f3ea] rounded-3xl p-8 shadow-xl text-center">
-            <h3 className="text-2xl font-bold text-[#3d3d3d] mb-4">¡Precio actualizado!</h3>
-            <p className="text-lg text-[#3d3d3d] mb-6">El nuevo precio de la consulta es <span className="font-bold">{currentPrice.toLocaleString()} ARS</span></p>
+    <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-start justify-between mb-6 animate-slide-up">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#3D3229] mt-2">
+            Gestionar precios
+          </h1>
+          <div className="flex items-center gap-3">
             <button
-              className="px-6 py-2 rounded-2xl bg-[#b6e7b0] text-white text-lg font-bold shadow hover:scale-[1.03] transition"
-              onClick={handleCloseConfirm}
+              onClick={onBack}
+              className="p-3 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+              aria-label="Volver"
             >
-              Cerrar
+              <MdOutlineArrowBack className="w-6 h-6" />
+            </button>
+            <button
+              onClick={onHome}
+              className="p-3 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+              aria-label="Inicio"
+            >
+              <MdHome className="w-6 h-6" />
             </button>
           </div>
         </div>
-      )}
+
+        <div className="bg-[#D4C3A4]/70 rounded-3xl p-6 sm:p-8 space-y-6 animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <div className="bg-white/90 rounded-2xl shadow-soft overflow-hidden">
+            <div className="bg-white/60 px-4 py-3 text-center border-b border-black/5">
+              <h3 className="text-lg font-bold text-[#3D3229]">Precio actual</h3>
+            </div>
+            <div className="bg-black/5 p-4">
+              <p className="text-[#3D3229] text-xl font-bold text-center">
+                {currentPrice.toLocaleString()} ARS
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white/90 rounded-2xl px-4 py-4 shadow-soft border border-[#3D3229]/10">
+            <div className="flex items-center gap-3">
+              <label className="text-[#3D3229] font-bold text-lg whitespace-nowrap">
+                Nuevo Precio:
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={newPrice}
+                onChange={e => setNewPrice(e.target.value)}
+                placeholder="escriba aqui"
+                className="flex-1 bg-transparent text-[#3D3229] text-lg placeholder:text-gray-400 
+                         focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4">
+            <button
+              onClick={handleConfirm}
+              className="w-full px-6 py-4 bg-[#B8D4A5] hover:bg-[#A8C495]
+                       border-2 border-[#3D3229] rounded-2xl
+                       text-[#3D3229] text-lg sm:text-xl font-bold
+                       shadow-medium hover:shadow-elevated
+                       active:scale-[0.98] transition-all duration-200
+                       focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30"
+            >
+              Confirmar precio
+            </button>
+            <button
+              onClick={onBack}
+              className="w-full px-6 py-4 bg-[#9F8A66] hover:bg-[#8F7A56]
+                       border-2 border-[#3D3229] rounded-2xl
+                       text-white text-lg sm:text-xl font-bold
+                       shadow-medium hover:shadow-elevated
+                       active:scale-[0.98] transition-all duration-200
+                       focus:outline-none focus:ring-4 focus:ring-[#9F8A66]/30"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        {showConfirm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+            <div className="bg-[#f7f3ea] rounded-3xl p-8 shadow-xl text-center">
+              <h3 className="text-2xl font-bold text-[#3D3229] mb-4">¡Precio actualizado!</h3>
+              <p className="text-lg text-[#3D3229] mb-6">
+                El nuevo precio de la consulta es <span className="font-bold">{currentPrice.toLocaleString()} ARS</span>
+              </p>
+              <button
+                onClick={handleCloseConfirm}
+                className="px-6 py-3 bg-[#B8D4A5] hover:bg-[#A8C495]
+                         border-2 border-[#3D3229] rounded-2xl
+                         text-[#3D3229] text-lg font-bold
+                         shadow-medium hover:shadow-elevated
+                         active:scale-[0.98] transition-all duration-200"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+export default AdminManagePricing;

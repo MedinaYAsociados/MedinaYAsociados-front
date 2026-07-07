@@ -1,6 +1,44 @@
-import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { MdOutlineArrowBack, MdHome, MdCheckCircle, MdCancel, MdSchedule, MdMoneyOff } from 'react-icons/md';
 
-function ClientDetailCard({ label, value }) {
+const statusIcons = {
+  CONFIRMADO: MdCheckCircle,
+  COMPLETADO: MdCheckCircle,
+  CANCELADO: MdCancel,
+  PENDIENTE: MdSchedule,
+  EXPIRO_PAGO: MdMoneyOff,
+};
+
+const statusColors = {
+  CONFIRMADO: 'text-green-700 bg-green-100',
+  COMPLETADO: 'text-blue-700 bg-blue-100',
+  CANCELADO: 'text-red-700 bg-red-100',
+  PENDIENTE: 'text-yellow-700 bg-yellow-100',
+  EXPIRO_PAGO: 'text-orange-700 bg-orange-100',
+};
+
+function StatCard({ nombre, cantidad }) {
+  const Icon = statusIcons[nombre] || MdSchedule;
+  const color = statusColors[nombre] || 'text-gray-700 bg-gray-100';
+  return (
+    <div className="bg-white/90 rounded-xl shadow-soft p-3 flex items-center gap-3">
+      <div className={`p-2 rounded-lg ${color}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[#3D3229] text-sm font-semibold truncate">
+          {nombre === 'EXPIRO_PAGO' ? 'Pagos vencidos' :
+           nombre === 'CONFIRMADO' ? 'Confirmados' :
+           nombre === 'COMPLETADO' ? 'Completados' :
+           nombre === 'CANCELADO' ? 'Cancelados' :
+           nombre === 'PENDIENTE' ? 'Pendientes' : nombre}
+        </p>
+        <p className="text-[#3D3229] text-2xl font-bold">{cantidad}</p>
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ label, value }) {
   return (
     <div className="rounded-2xl shadow-soft bg-white/70 backdrop-blur-sm overflow-hidden">
       <div className="bg-white/60 px-4 py-3 text-center border-b border-black/5">
@@ -26,19 +64,32 @@ function LawyerClientDetail({ client, onBack, onHome }) {
     );
   }
 
+  const nombreCompleto = client.nombre && client.apellido
+    ? `${client.nombre} ${client.apellido}`
+    : client.name || '-';
+
+  const direccionStr = [
+    client.direccion?.calle || client.calle,
+    client.direccion?.numeroCalle ?? client.numero,
+  ].filter(Boolean).join(' ');
+
+  const localidadStr = client.localidad?.nombreLocalidad || client.localidad || '-';
+  const provinciaStr = client.direccion?.provincia || '-';
+  const pisoStr = client.piso || client.direccion?.piso;
+  const deptoStr = client.departamento || client.direccion?.departamento;
+
   return (
     <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
-          <button 
+          <button
             onClick={onBack}
             className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
             aria-label="Volver"
           >
             <MdOutlineArrowBack className="w-5 h-5" />
           </button>
-          <button 
+          <button
             onClick={onHome}
             className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
             aria-label="Inicio"
@@ -50,56 +101,31 @@ function LawyerClientDetail({ client, onBack, onHome }) {
           </h1>
         </div>
 
-        {/* Contenedor principal */}
+        {/* Datos personales */}
         <div className="bg-[#C9B896]/60 rounded-3xl p-6 space-y-4 animate-slide-up">
-          {/* Nombre y apellido */}
-          <ClientDetailCard 
-            label="Nombre y apellido" 
-            value={client.name} 
-          />
+          <InfoCard label="Nombre y apellido" value={nombreCompleto} />
+          <InfoCard label="Teléfono" value={client.telefono || client.phone} />
+          <InfoCard label="Email" value={client.email} />
+          <InfoCard label="DNI" value={client.dni} />
 
-          {/* Teléfono */}
-          <ClientDetailCard 
-            label="Telefono" 
-            value={client.phone || client.telefono} 
-          />
-
-          {/* Localidad */}
-          <ClientDetailCard 
-            label="Localidad" 
-            value={client.localidad} 
-          />
-
-          {/* Calle */}
-          <ClientDetailCard 
-            label="Calle" 
-            value={client.street || client.calle} 
-          />
-
-          {/* Numero */}
-          <ClientDetailCard 
-            label="Numero" 
-            value={client.number || client.numero} 
-          />
-
-          {/* Piso y Depto */}
-          <div className="grid grid-cols-2 gap-4">
-            <ClientDetailCard 
-              label="Piso" 
-              value={client.floor || client.piso} 
-            />
-            <ClientDetailCard 
-              label="Depto" 
-              value={client.apartment || client.departamento} 
-            />
-          </div>
-
-          {/* Email */}
-          <ClientDetailCard 
-            label="Email" 
-            value={client.email} 
-          />
+          {direccionStr && (
+            <InfoCard label="Dirección" value={`${direccionStr}${pisoStr ? ` - Piso ${pisoStr}` : ''}${deptoStr ? ` - Depto ${deptoStr}` : ''}`} />
+          )}
+          <InfoCard label="Localidad" value={localidadStr} />
+          <InfoCard label="Provincia" value={provinciaStr} />
         </div>
+
+        {/* Estadísticas */}
+        {client.turnosPorEstado && client.turnosPorEstado.length > 0 && (
+          <div className="mt-6 bg-[#C9B896]/60 rounded-3xl p-5 sm:p-6 animate-slide-up space-y-3">
+            <h3 className="text-lg font-bold text-[#3D3229] text-center">Estadísticas de turnos</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {client.turnosPorEstado.map((stat) => (
+                <StatCard key={stat.nombre} nombre={stat.nombre} cantidad={stat.cantidad} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
