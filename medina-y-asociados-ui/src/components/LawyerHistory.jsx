@@ -1,7 +1,5 @@
+import { useNavigate } from 'react-router-dom';
 import { formatAppointmentDate } from '../utils/date';
-import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
-
-const iconBtn = 'p-2 rounded-xl border-2 border-[#3D3229]/30 text-[#3D3229] hover:bg-white/40 transition-colors';
 
 const getStatusColor = (status) => {
   const colors = {
@@ -9,10 +7,10 @@ const getStatusColor = (status) => {
     pending: 'bg-[#E8DCC4]/70',
     confirmed: 'bg-[#B8D4B8]/70',
     completed: 'bg-[#A5C4D4]/70',
-    rescheduled: 'bg-[#D4C4A5]/70',
+    rescheduled: 'bg-[#6C7F94]/70',
     attended: 'bg-[#8FBC8F]/70',
     'no-show': 'bg-[#D4A5A5]/70',
-    paid: 'bg-[#D4C4A5]/70',
+    paid: 'bg-[#6C7F94]/70',
     'in-progress': 'bg-[#A5C4D4]/70'
   };
   return colors[status] || 'bg-white/70';
@@ -39,16 +37,16 @@ function HistoryAppointmentCard({ appt, onClick }) {
       onClick={onClick}
       className="w-full rounded-2xl shadow-soft bg-white/70 backdrop-blur-sm overflow-hidden hover:shadow-medium transition-shadow"
     >
-      <div className="bg-white/60 px-4 py-3 border-b border-black/5 text-center font-extrabold text-[#3D3229]">
+      <div className="bg-white/60 px-4 py-3 border-b border-black/5 text-center font-extrabold text-[#53667B]">
         Nº Turno: {appt.number}
       </div>
       <div className="p-4">
         <div className="bg-black/5 rounded-xl p-4 shadow-soft space-y-2">
-          <p className="text-[#3D3229] text-lg font-semibold">Cliente: {appt.clientName}</p>
-          <p className="text-[#3D3229] text-lg font-semibold">Fecha Hora: {formatAppointmentDate(appt.date)}</p>
+          <p className="text-[#53667B] text-lg font-semibold">Cliente: {appt.clientName}</p>
+          <p className="text-[#53667B] text-lg font-semibold">Fecha Hora: {formatAppointmentDate(appt.date)}</p>
           <div className="flex items-center gap-2 mt-3">
-            <span className="text-[#3D3229] text-base font-semibold">Estado:</span>
-            <span className={`px-3 py-1 rounded-full text-[#3D3229] text-sm font-semibold ${getStatusColor(appt.status)}`}>
+            <span className="text-[#53667B] text-base font-semibold">Estado:</span>
+            <span className={`px-3 py-1 rounded-full text-[#53667B] text-sm font-semibold ${getStatusColor(appt.status)}`}>
               {getStatusLabel(appt.status)}
             </span>
           </div>
@@ -58,8 +56,8 @@ function HistoryAppointmentCard({ appt, onClick }) {
   );
 }
 
-function LawyerHistory({ onBack, onHome, onSearchAppointment, onViewAppointment, user = { name: 'Abogado' } }) {
-  // Mock de turnos históricos del abogado
+function LawyerHistory() {
+  const navigate = useNavigate();
   const historyAppointments = [
     {
       id: 1,
@@ -99,41 +97,41 @@ function LawyerHistory({ onBack, onHome, onSearchAppointment, onViewAppointment,
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
-          <button 
-            onClick={onBack}
-            className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Volver"
           >
-            <MdOutlineArrowBack className="w-5 h-5" />
+            ←
           </button>
-          <button 
-            onClick={onHome}
-            className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Inicio"
           >
-            <MdHome className="w-5 h-5" />
+            🏠
           </button>
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#3D3229] text-center mb-6 animate-slide-up">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#53667B] text-center mb-6 animate-slide-up">
           Historial turnos
         </h2>
 
         {/* List container */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6 animate-slide-up">
           {historyAppointments.length === 0 ? (
-            <p className="text-center text-[#3D3229]">No hay turnos en el historial.</p>
+            <p className="text-center text-[#53667B]">No hay turnos en el historial.</p>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {historyAppointments.map(appt => (
                 <HistoryAppointmentCard 
                   key={appt.id} 
                   appt={appt} 
-                  onClick={() => onViewAppointment(appt)}
+                  onClick={() => navigate(`/lawyer/appointments/${appt.id}`, { state: { appointment: appt } })}
                 />
               ))}
             </div>
@@ -143,13 +141,13 @@ function LawyerHistory({ onBack, onHome, onSearchAppointment, onViewAppointment,
         {/* Buscar turnos button */}
         <div className="animate-slide-up">
           <button
-            onClick={onSearchAppointment}
-            className="w-full px-6 py-3.5 bg-[#B8D4A5] 
-                     border-2 border-[#3D3229] rounded-xl
-                     text-[#3D3229] text-lg sm:text-xl font-bold
+            onClick={() => navigate('/lawyer/appointments/search')}
+            className="w-full px-6 py-3.5 bg-[#C6A15B] 
+                     border-2 border-[#C6A15B] rounded-xl
+                     text-[#53667B] text-lg sm:text-xl font-bold
                      shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
                      active:scale-[0.98] transition-all duration-200
-                     focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30"
+                     focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
           >
             Buscar turnos
           </button>

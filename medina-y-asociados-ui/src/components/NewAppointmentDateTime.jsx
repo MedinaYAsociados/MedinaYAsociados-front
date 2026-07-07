@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppointment } from '../context/AppointmentContext';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { getAvailableTimeSlots } from '../services/timeSlots';
 
 // Componente Calendario simple
 function Calendar({ selectedDate, onSelectDate }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth] = useState(new Date());
   
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -71,7 +73,7 @@ function Calendar({ selectedDate, onSelectDate }) {
                 aspect-square rounded-lg text-center font-semibold text-base transition-all
                 ${!isCurrentMonth ? 'text-gray-300' : ''}
                 ${isPast ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
-                ${selected ? 'bg-white text-[#3D3229] ring-2 ring-[#3D3229] ring-offset-2' : 'text-black'}
+                ${selected ? 'bg-white text-[#53667B] ring-2 ring-[#C6A15B] ring-offset-2' : 'text-black'}
                 ${!isPast && !selected && isCurrentMonth ? 'hover:bg-gray-100' : ''}
               `}
             >
@@ -93,8 +95,8 @@ function TimeSlot({ time, selected, available, onClick }) {
       className={`
         px-6 py-3 rounded-2xl font-bold text-base transition-all shadow-soft
         ${!available ? 'bg-white/40 text-gray-400 cursor-not-allowed' : ''}
-        ${available && !selected ? 'bg-white/90 text-[#3D3229] hover:bg-white hover:shadow-medium' : ''}
-        ${selected ? 'bg-[#3D3229] text-white shadow-medium' : ''}
+        ${available && !selected ? 'bg-white/90 text-[#53667B] hover:bg-white hover:shadow-medium' : ''}
+        ${selected ? 'bg-[#6C7F94] text-white shadow-medium' : ''}
       `}
     >
       {time}
@@ -102,7 +104,9 @@ function TimeSlot({ time, selected, available, onClick }) {
   );
 }
 
-function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onHome, onConfirm, isRescheduling = false, clientData = null }) {
+function NewAppointmentDateTime() {
+  const navigate = useNavigate();
+  const { selectedSpecialty, selectedLawyer, isRescheduling, clientData, resetWizard } = useAppointment();
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -123,13 +127,41 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
 
   const handleConfirm = () => {
     if (selectedDate && selectedTime) {
-      onConfirm({
-        specialty: selectedSpecialty,
-        lawyer: selectedLawyer,
-        date: selectedDate,
-        time: selectedTime,
-        observations
-      });
+      // TODO: handle payment redirect
+      // Check isRescheduling, clientData from context
+      if (isRescheduling) {
+        console.log('Reprogramando turno...');
+        // Llamar al backend para reprogramar
+        resetWizard();
+        navigate('/dashboard');
+      } else if (clientData) {
+        console.log('Creando turno para cliente desde abogado...');
+        const appointmentData = {
+          specialty: selectedSpecialty,
+          lawyer: selectedLawyer,
+          client: clientData,
+          date: selectedDate,
+          time: selectedTime,
+          observations
+        };
+        console.log('Datos del turno:', appointmentData);
+        // Llamar al backend para crear turno
+        resetWizard();
+        navigate('/dashboard');
+      } else {
+        console.log('Confirmando turno con pago...');
+        const appointmentData = {
+          specialty: selectedSpecialty,
+          lawyer: selectedLawyer,
+          date: selectedDate,
+          time: selectedTime,
+          observations
+        };
+        console.log('Datos del turno:', appointmentData);
+        // Redirigir al pago o crear turno
+        resetWizard();
+        navigate('/dashboard');
+      }
     }
   };
 
@@ -137,14 +169,14 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
   const APPOINTMENT_PRICE = '10.000 ARS';
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header */}
-        <div className="flex items-center gap-3 text-[#3D3229] mb-4">
-          <button onClick={onBack} className="p-2 rounded-xl border-2 border-[#3D3229]/30 hover:bg-white/40 transition-colors" aria-label="Volver">
+        <div className="flex items-center gap-3 text-[#53667B] mb-4">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Volver">
             <MdOutlineArrowBack className="w-9 h-9" />
           </button>
-          <button onClick={onHome} className="p-2 rounded-xl border-2 border-[#3D3229]/30 hover:bg-white/40 transition-colors" aria-label="Inicio">
+          <button onClick={() => { resetWizard(); navigate('/dashboard'); }} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Inicio">
             <MdHome className="w-9 h-9" />
           </button>
           <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Nuevo turno</h1>
@@ -163,11 +195,11 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
           <div>
             <h2 className="text-center text-xl sm:text-2xl font-extrabold text-black mb-4">Seleccione hora</h2>
             {loadingSlots ? (
-              <p className="text-center text-[#3D3229]">Cargando horarios…</p>
+              <p className="text-center text-[#53667B]">Cargando horarios…</p>
             ) : !selectedDate ? (
-              <p className="text-center text-[#3D3229]/70">Primero seleccione una fecha</p>
+              <p className="text-center text-[#53667B]/70">Primero seleccione una fecha</p>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {availableSlots.map(slot => (
                   <TimeSlot
                     key={slot}
@@ -188,8 +220,8 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
               placeholder="Escriba aquí cualquier observación adicional..."
-              className="w-full bg-white/90 rounded-2xl shadow-soft border border-black/5 p-4 text-[#3D3229] 
-                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3D3229] 
+              className="w-full bg-white/90 rounded-2xl shadow-soft border border-black/5 p-4 text-[#53667B] 
+                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C6A15B] 
                        resize-none h-32"
             />
           </div>
@@ -202,11 +234,11 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
           )}
 
           {isRescheduling && (
-            <div className="text-center bg-[#B8D4A5]/30 rounded-xl p-4 border-2 border-[#B8D4A5]">
-              <p className="text-lg font-bold text-[#3D3229]">
+            <div className="text-center bg-[#C6A15B]/30 rounded-xl p-4 border-2 border-[#C6A15B]">
+              <p className="text-lg font-bold text-[#53667B]">
                 ℹ️ Reprogramación sin cargo adicional
               </p>
-              <p className="text-sm text-[#3D3229]/70 mt-1">
+              <p className="text-sm text-[#53667B]/70 mt-1">
                 El pago ya fue realizado
               </p>
             </div>
@@ -218,20 +250,20 @@ function NewAppointmentDateTime({ selectedSpecialty, selectedLawyer, onBack, onH
               onClick={handleConfirm}
               disabled={!canConfirm}
               className={`w-full px-6 py-3.5 rounded-xl font-bold text-lg sm:text-xl shadow-medium transition-all duration-200
-                border-2 border-[#3D3229]
+                border-2 border-[#C6A15B]
                 ${canConfirm 
-                  ? 'bg-[#B8D4A5] hover:bg-[#A8C495] text-[#3D3229] hover:shadow-elevated active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[#B8D4A5]/30' 
-                  : 'bg-[#B8D4A5]/40 text-[#3D3229]/60 cursor-not-allowed'
+                  ? 'bg-[#C6A15B] hover:bg-[#A8C495] text-[#53667B] hover:shadow-elevated active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30' 
+                  : 'bg-[#C6A15B]/40 text-[#53667B]/60 cursor-not-allowed'
                 }`}
             >
               {isRescheduling ? 'Confirmar reprogramación' : 'Confirmar turno'}
             </button>
             <button
-              onClick={onHome}
-              className="w-full px-6 py-3.5 bg-[#9F8A66] hover:bg-[#8F7A56] text-white font-bold 
-                       border-2 border-[#3D3229] rounded-xl shadow-medium hover:shadow-elevated 
+              onClick={() => { resetWizard(); navigate('/dashboard'); }}
+              className="w-full px-6 py-3.5 bg-[#C6A15B] hover:bg-[#B08F3F] text-white font-bold 
+                       border-2 border-[#C6A15B] rounded-xl shadow-medium hover:shadow-elevated 
                        active:scale-[0.98] transition-all duration-200
-                       focus:outline-none focus:ring-4 focus:ring-[#9F8A66]/30 text-lg sm:text-xl"
+                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30 text-lg sm:text-xl"
             >
               Cancelar Turno
             </button>

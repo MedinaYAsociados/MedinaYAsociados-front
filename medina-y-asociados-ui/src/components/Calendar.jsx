@@ -61,27 +61,27 @@ function Calendar({ selectedDate, onSelectDate, minDate = null }) {
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}
-          className="p-1 hover:bg-[#C9B896]/20 rounded-full transition-colors"
+          className="p-1 hover:bg-[#6C7F94]/20 rounded-full transition-colors"
           type="button"
         >
-          <MdChevronLeft className="w-6 h-6 text-[#3D3229]" />
+          <MdChevronLeft className="w-6 h-6 text-[#53667B]" />
         </button>
-        <h3 className="text-lg font-bold text-[#3D3229]">
+        <h3 className="text-lg font-bold text-[#53667B]">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </h3>
         <button
           onClick={handleNextMonth}
-          className="p-1 hover:bg-[#C9B896]/20 rounded-full transition-colors"
+          className="p-1 hover:bg-[#6C7F94]/20 rounded-full transition-colors"
           type="button"
         >
-          <MdChevronRight className="w-6 h-6 text-[#3D3229]" />
+          <MdChevronRight className="w-6 h-6 text-[#53667B]" />
         </button>
       </div>
 
       {/* Días de la semana */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, idx) => (
-          <div key={idx} className="text-center text-sm font-semibold text-[#3D3229] py-1">
+          <div key={idx} className="text-center text-sm font-semibold text-[#53667B] py-1">
             {day}
           </div>
         ))}
@@ -108,10 +108,10 @@ function Calendar({ selectedDate, onSelectDate, minDate = null }) {
                 transition-all
                 ${disabled 
                   ? 'text-[#9C8B78]/30 cursor-not-allowed' 
-                  : 'text-[#3D3229] hover:bg-[#C9B896]/30 cursor-pointer'
+                  : 'text-[#53667B] hover:bg-[#6C7F94]/30 cursor-pointer'
                 }
                 ${selected 
-                  ? 'bg-[#3D3229] text-white ring-2 ring-[#3D3229] ring-offset-2' 
+                  ? 'bg-[#6C7F94] text-white ring-2 ring-[#C6A15B] ring-offset-2' 
                   : ''
                 }
               `}

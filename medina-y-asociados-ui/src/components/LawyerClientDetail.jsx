@@ -1,3 +1,4 @@
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome, MdCheckCircle, MdCancel, MdSchedule, MdMoneyOff } from 'react-icons/md';
 
 const statusIcons = {
@@ -25,14 +26,14 @@ function StatCard({ nombre, cantidad }) {
         <Icon className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[#3D3229] text-sm font-semibold truncate">
+        <p className="text-[#53667B] text-sm font-semibold truncate">
           {nombre === 'EXPIRO_PAGO' ? 'Pagos vencidos' :
            nombre === 'CONFIRMADO' ? 'Confirmados' :
            nombre === 'COMPLETADO' ? 'Completados' :
            nombre === 'CANCELADO' ? 'Cancelados' :
            nombre === 'PENDIENTE' ? 'Pendientes' : nombre}
         </p>
-        <p className="text-[#3D3229] text-2xl font-bold">{cantidad}</p>
+        <p className="text-[#53667B] text-2xl font-bold">{cantidad}</p>
       </div>
     </div>
   );
@@ -42,10 +43,10 @@ function InfoCard({ label, value }) {
   return (
     <div className="rounded-2xl shadow-soft bg-white/70 backdrop-blur-sm overflow-hidden">
       <div className="bg-white/60 px-4 py-3 text-center border-b border-black/5">
-        <h3 className="text-lg font-bold text-[#3D3229]">{label}</h3>
+        <h3 className="text-lg font-bold text-[#53667B]">{label}</h3>
       </div>
       <div className="bg-black/5 p-4">
-        <p className="text-[#3D3229] text-lg font-semibold text-center">
+        <p className="text-[#53667B] text-lg font-semibold text-center">
           {value || '-'}
         </p>
       </div>
@@ -53,12 +54,15 @@ function InfoCard({ label, value }) {
   );
 }
 
-function LawyerClientDetail({ client, onBack, onHome }) {
+function LawyerClientDetail() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const client = location.state?.client;
   if (!client) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-center text-[#3D3229]">No se encontró el cliente.</p>
+      <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
+        <div className="max-w-6xl mx-auto w-full">
+          <p className="text-center text-[#53667B]">No se encontró el cliente.</p>
         </div>
       </div>
     );
@@ -79,30 +83,30 @@ function LawyerClientDetail({ client, onBack, onHome }) {
   const deptoStr = client.departamento || client.direccion?.departamento;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
+      <div className="max-w-6xl mx-auto w-full">
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button
-            onClick={onBack}
-            className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+            onClick={() => navigate(-1)}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Volver"
           >
             <MdOutlineArrowBack className="w-5 h-5" />
           </button>
           <button
-            onClick={onHome}
-            className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+            onClick={() => navigate('/dashboard')}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Inicio"
           >
             <MdHome className="w-5 h-5" />
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#3D3229]">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#53667B]">
             Cliente
           </h1>
         </div>
 
         {/* Datos personales */}
-        <div className="bg-[#C9B896]/60 rounded-3xl p-6 space-y-4 animate-slide-up">
+        <div className="bg-white/60 rounded-3xl p-6 space-y-4 animate-slide-up">
           <InfoCard label="Nombre y apellido" value={nombreCompleto} />
           <InfoCard label="Teléfono" value={client.telefono || client.phone} />
           <InfoCard label="Email" value={client.email} />
@@ -117,9 +121,9 @@ function LawyerClientDetail({ client, onBack, onHome }) {
 
         {/* Estadísticas */}
         {client.turnosPorEstado && client.turnosPorEstado.length > 0 && (
-          <div className="mt-6 bg-[#C9B896]/60 rounded-3xl p-5 sm:p-6 animate-slide-up space-y-3">
-            <h3 className="text-lg font-bold text-[#3D3229] text-center">Estadísticas de turnos</h3>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="mt-6 bg-white/60 rounded-3xl p-5 sm:p-6 animate-slide-up space-y-3">
+            <h3 className="text-lg font-bold text-[#53667B] text-center">Estadísticas de turnos</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {client.turnosPorEstado.map((stat) => (
                 <StatCard key={stat.nombre} nombre={stat.nombre} cantidad={stat.cantidad} />
               ))}

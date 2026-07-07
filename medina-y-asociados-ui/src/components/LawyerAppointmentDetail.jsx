@@ -1,21 +1,26 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { formatAppointmentDate } from '../utils/date';
+import { useAppointment } from '../context/AppointmentContext';
 
-function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, onCancel, onConfirm }) {
+function LawyerAppointmentDetail() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const appointment = location.state?.appointment;
+  const { startReschedule } = useAppointment();
   const [localStatus, setLocalStatus] = useState(appointment?.status);
 
   if (!appointment) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-center text-[#3D3229]">No se encontró el turno.</p>
+      <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
+        <div className="max-w-6xl mx-auto w-full">
+          <p className="text-center text-[#53667B]">No se encontró el turno.</p>
         </div>
       </div>
     );
   }
 
-  // Mock de datos del cliente (en producción vendría del appointment)
   const clientData = {
     name: 'Ramiro Doglio',
     dni: '12.345.678',
@@ -34,50 +39,50 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
   const canMarkCompleted = localStatus === 'in-progress';
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button 
-            onClick={onBack}
-            className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+            onClick={() => navigate(-1)}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Volver"
           >
             <MdOutlineArrowBack className="w-5 h-5" />
           </button>
           <button 
-            onClick={onHome}
-            className="p-2.5 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+            onClick={() => navigate('/dashboard')}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Inicio"
           >
             <MdHome className="w-5 h-5" />
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#3D3229]">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#53667B]">
             Nº Turno: {appointment.number}
           </h1>
         </div>
 
         {/* Contenedor principal */}
-        <div className="bg-[#C9B896]/60 rounded-3xl p-6 space-y-6 animate-slide-up">
+        <div className="bg-white/60 rounded-3xl p-6 space-y-6 animate-slide-up">
           {/* Card de Cliente */}
           <div className="bg-gradient-to-b from-white/90 to-white/70 rounded-2xl shadow-medium overflow-hidden">
             <div className="bg-white/80 px-4 py-3 text-center border-b border-black/5">
-              <h2 className="text-xl font-bold text-[#3D3229]">Cliente</h2>
+              <h2 className="text-xl font-bold text-[#53667B]">Cliente</h2>
             </div>
             <div className="bg-black/5 p-6 space-y-2">
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {clientData.name}
               </p>
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {clientData.dni}
               </p>
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {clientData.address}
               </p>
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {clientData.addressDetail}
               </p>
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {clientData.phone}
               </p>
             </div>
@@ -86,13 +91,13 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
           {/* Card de Fecha Hora */}
           <div className="bg-gradient-to-b from-white/90 to-white/70 rounded-2xl shadow-medium overflow-hidden">
             <div className="bg-white/80 px-4 py-3 text-center border-b border-black/5">
-              <h2 className="text-xl font-bold text-[#3D3229]">Fecha Hora</h2>
+              <h2 className="text-xl font-bold text-[#53667B]">Fecha Hora</h2>
             </div>
             <div className="bg-black/5 p-6 space-y-2">
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {appointmentDate}
               </p>
-              <p className="text-[#3D3229] text-lg text-center font-semibold">
+              <p className="text-[#53667B] text-lg text-center font-semibold">
                 {appointmentTime}
               </p>
             </div>
@@ -106,7 +111,7 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
             <div className="flex gap-3">
               <button
                 onClick={() => setLocalStatus('attended')}
-                className="flex-1 px-4 py-3.5 bg-[#8FBC8F]/80 hover:bg-[#7FA97F] border-2 border-[#3D3229] text-white 
+                className="flex-1 px-4 py-3.5 bg-[#8FBC8F]/80 hover:bg-[#7FA97F] border-2 border-[#C6A15B] text-white 
                          font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                          transition-all focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
               >
@@ -114,7 +119,7 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
               </button>
               <button
                 onClick={() => setLocalStatus('no-show')}
-                className="flex-1 px-4 py-3.5 bg-[#D4A5A5]/80 hover:bg-[#C99595] border-2 border-[#3D3229] text-white 
+                className="flex-1 px-4 py-3.5 bg-[#D4A5A5]/80 hover:bg-[#C99595] border-2 border-[#C6A15B] text-white 
                          font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                          transition-all focus:outline-none focus:ring-4 focus:ring-[#D4A5A5]/30"
               >
@@ -125,9 +130,9 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
           {canMarkPaid && (
             <button
               onClick={() => setLocalStatus('paid')}
-              className="w-full px-6 py-3.5 bg-[#D4C4A5]/80 hover:bg-[#C9B896] border-2 border-[#3D3229] text-[#3D3229]
+              className="w-full px-6 py-3.5 bg-[#6C7F94]/10 hover:bg-[#6C7F94] border-2 border-[#C6A15B] text-[#53667B]
                        font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
-                       transition-all focus:outline-none focus:ring-4 focus:ring-[#D4C4A5]/30"
+                       transition-all focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
             >
               Marcar Pagado
             </button>
@@ -135,7 +140,7 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
           {canMarkInProgress && (
             <button
               onClick={() => setLocalStatus('in-progress')}
-              className="w-full px-6 py-3.5 bg-[#A5C4D4]/80 hover:bg-[#95B4C4] border-2 border-[#3D3229] text-white
+              className="w-full px-6 py-3.5 bg-[#A5C4D4]/80 hover:bg-[#95B4C4] border-2 border-[#C6A15B] text-white
                        font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                        transition-all focus:outline-none focus:ring-4 focus:ring-[#A5C4D4]/30"
             >
@@ -145,7 +150,7 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
           {canMarkCompleted && (
             <button
               onClick={() => setLocalStatus('completed')}
-              className="w-full px-6 py-3.5 bg-[#8FBC8F]/80 hover:bg-[#7FA97F] border-2 border-[#3D3229] text-white
+              className="w-full px-6 py-3.5 bg-[#8FBC8F]/80 hover:bg-[#7FA97F] border-2 border-[#C6A15B] text-white
                        font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                        transition-all focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
             >
@@ -153,24 +158,24 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
             </button>
           )}
           <button
-            onClick={onReschedule}
-            className="w-full px-6 py-3.5 bg-[#9C8B78]/70 hover:bg-[#9C8B78]/90 border-2 border-[#3D3229] text-white 
+            onClick={() => { startReschedule(appointment); navigate('/lawyer/appointments/new/client'); }}
+            className="w-full px-6 py-3.5 bg-[#9C8B78]/70 hover:bg-[#9C8B78]/90 border-2 border-[#C6A15B] text-white 
                      font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                      transition-all focus:outline-none focus:ring-4 focus:ring-[#9C8B78]/30"
           >
             Reprogramar Turno
           </button>
           <button
-            onClick={onCancel}
-            className="w-full px-6 py-3.5 bg-[#8B6F47]/70 hover:bg-[#8B6F47]/90 border-2 border-[#3D3229] text-white 
+            onClick={() => setLocalStatus('cancelled')}
+            className="w-full px-6 py-3.5 bg-[#8B6F47]/70 hover:bg-[#8B6F47]/90 border-2 border-[#C6A15B] text-white 
                      font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                      transition-all focus:outline-none focus:ring-4 focus:ring-[#8B6F47]/30"
           >
             Cancelar Turno
           </button>
           <button
-            onClick={onConfirm}
-            className="w-full px-6 py-3.5 bg-[#8FBC8F]/70 hover:bg-[#7FA97F]/90 border-2 border-[#3D3229] text-white 
+            onClick={() => setLocalStatus('confirmed')}
+            className="w-full px-6 py-3.5 bg-[#8FBC8F]/70 hover:bg-[#7FA97F]/90 border-2 border-[#C6A15B] text-white 
                      font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
                      transition-all focus:outline-none focus:ring-4 focus:ring-[#8FBC8F]/30"
           >
@@ -181,20 +186,20 @@ function LawyerAppointmentDetail({ appointment, onBack, onHome, onReschedule, on
         {/* Card de Estado */}
         <div className="mt-6 bg-white/40 backdrop-blur-sm rounded-2xl shadow-medium p-4 animate-slide-up">
           <div className="flex gap-3">
-            <button className="flex-1 px-4 py-3 bg-[#C9B896]/60 border border-[#3D3229]/30 text-[#3D3229] 
-                             font-semibold text-base rounded-xl transition-colors hover:bg-[#C9B896]/80">
+            <button className="flex-1 px-4 py-3 bg-white/60 border border-[#C6A15B]/30 text-[#53667B] 
+                             font-semibold text-base rounded-xl transition-colors hover:bg-[#6C7F94]/80">
               Estado
             </button>
-            <div className={`flex-1 px-4 py-3 border border-[#3D3229]/30 text-[#3D3229] 
+            <div className={`flex-1 px-4 py-3 border border-[#C6A15B]/30 text-[#53667B] 
                              font-semibold text-base rounded-xl ${
                                localStatus === 'cancelled' ? 'bg-[#D4A5A5]/70' :
                                localStatus === 'pending' ? 'bg-[#E8DCC4]/70' :
                                localStatus === 'confirmed' ? 'bg-[#B8D4B8]/70' :
                                localStatus === 'completed' ? 'bg-[#A5C4D4]/70' :
-                               localStatus === 'rescheduled' ? 'bg-[#D4C4A5]/70' :
+                               localStatus === 'rescheduled' ? 'bg-[#6C7F94]/70' :
                                 localStatus === 'attended' ? 'bg-[#8FBC8F]/70' :
                                 localStatus === 'no-show' ? 'bg-[#D4A5A5]/70' :
-                                localStatus === 'paid' ? 'bg-[#D4C4A5]/70' :
+                                localStatus === 'paid' ? 'bg-[#6C7F94]/70' :
                                 localStatus === 'in-progress' ? 'bg-[#A5C4D4]/70' :
                                 'bg-white/70'
                               }`}>

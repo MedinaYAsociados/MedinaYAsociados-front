@@ -2,10 +2,17 @@
 // Configure Vite env var VITE_API_BASE_URL, e.g. http://localhost:8080/api
 const BASE_URL = import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-let authToken = null;
+let authToken = (() => {
+  try { return localStorage.getItem('auth_token'); } catch { return null; }
+})();
 
 export function setAuthToken(token) {
   authToken = token;
+  if (token) {
+    try { localStorage.setItem('auth_token', token); } catch { /* noop */ }
+  } else {
+    try { localStorage.removeItem('auth_token'); } catch { /* noop */ }
+  }
 }
 
 async function request(path, { method = 'GET', body, headers = {}, signal } = {}) {

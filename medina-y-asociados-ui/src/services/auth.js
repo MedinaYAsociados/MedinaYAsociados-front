@@ -116,6 +116,14 @@ async function realRegister(payload) {
   return api.post('/auth/register', payload);
 }
 
+export function logout() {
+  setAuthToken(null);
+  try {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+  } catch { /* noop */ }
+}
+
 // ---------------- PUBLIC API ----------------
 export async function login(params) {
   return USE_MOCK ? mockLogin(params) : realLogin(params);

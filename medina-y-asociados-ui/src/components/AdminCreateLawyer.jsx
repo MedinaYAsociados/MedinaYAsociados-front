@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 
-function AdminCreateLawyer({ onBack, onHome, onUserFound }) {
+function AdminCreateLawyer() {
+  const navigate = useNavigate();
   const [dni, setDni] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -50,33 +52,31 @@ function AdminCreateLawyer({ onBack, onHome, onUserFound }) {
     const foundUser = mockUsers[dni];
     
     if (foundUser) {
-      if (onUserFound) {
-        onUserFound(foundUser);
-      }
+      navigate('/admin/lawyers/create/user-found', { state: { user: foundUser } });
     } else {
       setErrorMessage('No se encontró ningún usuario con ese DNI');
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#C9B896] to-[#D4C3A4] px-4 sm:px-6 py-6 animate-fade-in">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header con botones de navegación y título */}
         <div className="flex items-start justify-between mb-6 animate-slide-up">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#3D3229] mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#53667B] mt-2">
             Buscar usuario
           </h1>
           <div className="flex items-center gap-3">
             <button 
-              onClick={onBack}
-              className="p-3 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+              onClick={() => navigate(-1)}
+              className="p-3 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
               aria-label="Volver"
             >
               <MdOutlineArrowBack className="w-6 h-6" />
             </button>
             <button 
-              onClick={onHome}
-              className="p-3 rounded-full border-2 border-[#3D3229] text-[#3D3229] hover:bg-white/40 transition-colors"
+              onClick={() => navigate('/dashboard')}
+              className="p-3 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
               aria-label="Inicio"
             >
               <MdHome className="w-6 h-6" />
@@ -85,15 +85,15 @@ function AdminCreateLawyer({ onBack, onHome, onUserFound }) {
         </div>
 
         {/* Contenedor principal */}
-        <div className="bg-[#D4C3A4]/70 rounded-3xl p-8 sm:p-12 shadow-soft animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <p className="text-center text-[#3D3229] text-lg sm:text-xl font-semibold leading-relaxed mb-8">
+        <div className="bg-white/70 rounded-3xl p-8 sm:p-12 shadow-soft animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <p className="text-center text-[#53667B] text-lg sm:text-xl font-semibold leading-relaxed mb-8">
             Ingrese el DNI del usuario que desea crear como Abogado
           </p>
 
           {/* Input de DNI */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 bg-white/90 rounded-2xl px-4 py-4 shadow-soft border border-[#3D3229]/10">
-              <label className="text-[#3D3229] font-bold text-lg whitespace-nowrap">
+            <div className="flex items-center gap-3 bg-white/90 rounded-2xl px-4 py-4 shadow-soft border border-[#C6A15B]/10">
+              <label className="text-[#53667B] font-bold text-lg whitespace-nowrap">
                 DNI:
               </label>
               <input
@@ -104,7 +104,7 @@ function AdminCreateLawyer({ onBack, onHome, onUserFound }) {
                   setErrorMessage(''); // Limpiar error al escribir
                 }}
                 placeholder="escriba aqui"
-                className="flex-1 bg-transparent text-[#3D3229] text-lg placeholder:text-gray-400 
+                className="flex-1 bg-transparent text-[#53667B] text-lg placeholder:text-gray-400 
                          focus:outline-none"
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
@@ -124,11 +124,11 @@ function AdminCreateLawyer({ onBack, onHome, onUserFound }) {
           <button
             onClick={handleSearch}
             className="w-full px-8 py-5 bg-[#E8DCC4] hover:bg-[#DED2BA]
-                     border-2 border-[#3D3229] rounded-2xl
-                     text-[#3D3229] text-xl sm:text-2xl font-bold
+                     border-2 border-[#C6A15B] rounded-2xl
+                     text-[#53667B] text-xl sm:text-2xl font-bold
                      shadow-medium hover:shadow-elevated
                      active:scale-[0.98] transition-all duration-200
-                     focus:outline-none focus:ring-4 focus:ring-[#3D3229]/20"
+                     focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
           >
             Buscar usuario
           </button>

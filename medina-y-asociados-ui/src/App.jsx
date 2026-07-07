@@ -1,628 +1,107 @@
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import { AppointmentProvider } from './context/AppointmentContext';
+import { ProtectedRoute, AdminRoute, LawyerRoute } from './components/ProtectedRoute';
+import DashboardRouter from './components/DashboardRouter';
+import Navbar from './components/Navbar';
+import Login from './components/Login';
+import Register from './components/Register';
+import RegisterSuccess from './components/RegisterSuccess';
+import RoleSelector from './components/RoleSelector';
+import ClientDashboard from './components/ClientDashboard';
+import LawyerDashboard from './components/LawyerDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import AdminManageLawyers from './components/AdminManageLawyers';
+import AdminCreateLawyer from './components/AdminCreateLawyer';
+import AdminUserFound from './components/AdminUserFound';
+import AdminCreateLawyerForm from './components/AdminCreateLawyerForm';
+import AdminUpdateLawyer from './components/AdminUpdateLawyer';
+import AdminUpdateLawyerForm from './components/AdminUpdateLawyerForm';
+import AdminManagePricing from './components/AdminManagePricing';
+import LawyerAppointments from './components/LawyerAppointments';
+import LawyerAppointmentDetail from './components/LawyerAppointmentDetail';
+import LawyerSearchAppointment from './components/LawyerSearchAppointment';
+import LawyerSearchResults from './components/LawyerSearchResults';
+import LawyerNewAppointmentClient from './components/LawyerNewAppointmentClient';
+import LawyerHistory from './components/LawyerHistory';
+import LawyerClients from './components/LawyerClients';
+import LawyerClientDetail from './components/LawyerClientDetail';
+import LawyerSearchClient from './components/LawyerSearchClient';
+import LawyerSearchClientResults from './components/LawyerSearchClientResults';
+import NewAppointmentSpecialty from './components/NewAppointmentSpecialty';
+import NewAppointmentLawyer from './components/NewAppointmentLawyer';
+import NewAppointmentDateTime from './components/NewAppointmentDateTime';
+import AppointmentDetail from './components/AppointmentDetail';
+import EditProfile from './components/EditProfile';
 
-import { useState } from 'react'
-import Login from './components/Login'
-import Register from './components/Register'
-import RegisterSuccess from './components/RegisterSuccess'
-import ClientDashboard from './components/ClientDashboard'
-import LawyerDashboard from './components/LawyerDashboard'
-import AdminDashboard from './components/AdminDashboard'
-import AdminManageLawyers from './components/AdminManageLawyers'
-import AdminCreateLawyer from './components/AdminCreateLawyer'
-import AdminUserFound from './components/AdminUserFound'
-import AdminCreateLawyerForm from './components/AdminCreateLawyerForm'
-import AdminUpdateLawyer from './components/AdminUpdateLawyer'
-import AdminManagePricing from './components/AdminManagePricing'
-import LawyerAppointments from './components/LawyerAppointments'
-import LawyerAppointmentDetail from './components/LawyerAppointmentDetail'
-import LawyerSearchAppointment from './components/LawyerSearchAppointment'
-import LawyerSearchResults from './components/LawyerSearchResults'
-import LawyerNewAppointmentClient from './components/LawyerNewAppointmentClient'
-import LawyerHistory from './components/LawyerHistory'
-import LawyerClients from './components/LawyerClients'
-import LawyerClientDetail from './components/LawyerClientDetail'
-import LawyerSearchClient from './components/LawyerSearchClient'
-import LawyerSearchClientResults from './components/LawyerSearchClientResults'
-import NewAppointmentSpecialty from './components/NewAppointmentSpecialty'
-import NewAppointmentLawyer from './components/NewAppointmentLawyer'
-import NewAppointmentDateTime from './components/NewAppointmentDateTime'
-import AppointmentDetail from './components/AppointmentDetail'
-import EditProfile from './components/EditProfile'
-import RoleSelector from './components/RoleSelector'
-
-function App() {
-  const [view, setView] = useState('login') // 'login' | 'register' | 'success' | 'role-selector' | 'dashboard' | 'edit-profile' | 'lawyer-appointments' | 'lawyer-appointment-detail' | 'lawyer-history' | 'lawyer-clients' | 'lawyer-client-detail' | 'lawyer-search-client' | 'lawyer-search-client-results' | 'lawyer-search' | 'lawyer-search-results' | 'lawyer-new-client' | 'new-specialty' | 'new-lawyer' | 'new-datetime' | 'appointment-detail'
-  const [user, setUser] = useState(null)
-  const [selectedSpecialty, setSelectedSpecialty] = useState(null)
-  const [selectedLawyer, setSelectedLawyer] = useState(null)
-  const [currentAppointment, setCurrentAppointment] = useState(null)
-  const [isRescheduling, setIsRescheduling] = useState(false)
-  const [clientData, setClientData] = useState(null)
-  const [searchResults, setSearchResults] = useState([])
-  const [previousView, setPreviousView] = useState('dashboard')
-  const [selectedClient, setSelectedClient] = useState(null)
-  const [clientSearchResults, setClientSearchResults] = useState([])
-  const [clientListView, setClientListView] = useState('lawyer-clients') // Para saber de dónde vino el cliente
-  const [selectedUserToPromote, setSelectedUserToPromote] = useState(null) // Usuario seleccionado para promover a abogado
-  const [selectedLawyerToUpdate, setSelectedLawyerToUpdate] = useState(null) // Abogado seleccionado para actualizar
-
-  const handleLoginSuccess = (loggedUser) => {
-    setUser(loggedUser);
-    if (loggedUser.roles && loggedUser.roles.length > 1) {
-      setView('role-selector');
-    } else {
-      setView('dashboard');
-    }
-  };
-
-  const handleSelectRole = (selectedRole) => {
-    setUser(prev => ({ ...prev, role: selectedRole }));
-    setView('dashboard');
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setView('login');
-  };
-
-  const handleDashboardBack = () => {
-    if (user && user.roles && user.roles.length > 1) {
-      setView('role-selector');
-    } else {
-      handleLogout();
-    }
-  };
-
-  const handlePaymentRedirect = (appointmentData) => {
-    // Si estamos reprogramando, no redirigir a pago
-    if (isRescheduling) {
-      console.log('Turno reprogramado exitosamente:', appointmentData);
-      alert('¡Turno reprogramado exitosamente!\n\nSu turno ha sido reprogramado sin cargo adicional ya que el pago fue realizado previamente.');
-      setIsRescheduling(false);
-      setClientData(null);
-      setSelectedSpecialty(null);
-      setSelectedLawyer(null);
-      setView('dashboard');
-      return;
-    }
-    
-    // Si es el abogado creando turno para un cliente, no redirigir a pago
-    if (clientData) {
-      console.log('Turno creado exitosamente para:', clientData, appointmentData);
-      alert(`¡Turno creado exitosamente para ${clientData.firstName} ${clientData.lastName}!`);
-      setClientData(null);
-      setSelectedSpecialty(null);
-      setSelectedLawyer(null);
-      setView('dashboard');
-      return;
-    }
-    
-    // TODO: Integrar con MercadoPago
-    console.log('Redirigiendo a MercadoPago con:', appointmentData);
-    // Por ahora, simular redirección
-    alert('Redirigiendo a MercadoPago para completar el pago...');
-    // En producción: window.location.href = mercadoPagoUrl;
-  };
-
-  const handleReschedule = () => {
-    setIsRescheduling(true);
-    // Cuando se reprograma, mantener la especialidad y abogado actuales
-    // e ir directo a selección de fecha y hora
-    if (currentAppointment) {
-      setSelectedSpecialty(currentAppointment.specialty);
-      setSelectedLawyer(currentAppointment.lawyer);
-    }
-    setView('new-datetime');
-  };
-
-  const handleCancelAppointment = () => {
-    if (confirm('¿Está seguro que desea cancelar este turno?')) {
-      console.log('Turno cancelado:', currentAppointment);
-      alert('Turno cancelado exitosamente');
-      setView('dashboard');
-    }
-  };
-
-  const handleEditProfile = () => {
-    setPreviousView(view);
-    setView('edit-profile');
-  };
-
-  const handleSaveProfile = (updatedData) => {
-    // TODO: Guardar datos en backend
-    console.log('Perfil actualizado:', updatedData);
-    setUser({ ...user, ...updatedData });
-  };
-
-  const handleBackFromProfile = () => {
-    setView(previousView);
-  };
-
+function AuthLayout() {
+  const { user } = useAuth();
   return (
     <>
-      {view === 'login' && (
-        <Login onGoRegister={() => setView('register')} onSuccess={handleLoginSuccess} />
-      )}
-      {view === 'register' && (
-        <Register onSuccess={() => setView('success')} onGoLogin={() => setView('login')} />
-      )}
-      {view === 'success' && (
-        <RegisterSuccess onGoLogin={() => setView('login')} />
-      )}
-      {view === 'role-selector' && user && user.roles && user.roles.length > 1 && (
-        <RoleSelector
-          roles={user.roles}
-          onSelectRole={handleSelectRole}
-          onLogout={handleLogout}
-        />
-      )}
-      {view === 'dashboard' && user && user.role === 'client' && (
-        <ClientDashboard 
-          onLogout={handleLogout} 
-          onNewAppointment={() => { setIsRescheduling(false); setView('new-specialty'); }}
-          onViewAppointment={(appt) => { setCurrentAppointment(appt); setView('appointment-detail'); }}
-          onEditProfile={handleEditProfile}
-        />
-      )}
-      {view === 'dashboard' && user && user.role === 'lawyer' && (
-        <LawyerDashboard
-          user={user}
-          onLogout={handleDashboardBack}
-          onViewAppointments={() => setView('lawyer-appointments')}
-          onViewClients={() => setView('lawyer-clients')}
-          onViewHistory={() => setView('lawyer-history')}
-          onEditProfile={handleEditProfile}
-        />
-      )}
-      {view === 'dashboard' && user && user.role === 'admin' && (
-        <AdminDashboard
-          user={user}
-          onLogout={handleDashboardBack}
-          onManageLawyers={() => setView('admin-manage-lawyers')}
-          onManagePricing={() => setView('admin-manage-pricing')}
-          onEditProfile={handleEditProfile}
-        />
-      )}
-      {view === 'edit-profile' && user && (
-        <EditProfile
-          user={user}
-          onBack={handleBackFromProfile}
-          onHome={() => setView('dashboard')}
-          onSave={handleSaveProfile}
-        />
-      )}
-      {view === 'lawyer-appointments' && (
-        <LawyerAppointments
-          user={user}
-          onBack={() => setView('dashboard')}
-          onHome={() => setView('dashboard')}
-          onNewAppointment={() => setView('lawyer-new-client')}
-          onSearchAppointment={() => setView('lawyer-search')}
-          onViewAppointment={(appt) => { setCurrentAppointment(appt); setView('lawyer-appointment-detail'); }}
-        />
-      )}
-      {view === 'lawyer-history' && (
-        <LawyerHistory
-          user={user}
-          onBack={() => setView('dashboard')}
-          onHome={() => setView('dashboard')}
-          onSearchAppointment={() => setView('lawyer-search')}
-          onViewAppointment={(appt) => { setCurrentAppointment(appt); setView('lawyer-appointment-detail'); }}
-        />
-      )}
-      {view === 'lawyer-clients' && (
-        <LawyerClients
-          user={user}
-          onBack={() => setView('dashboard')}
-          onHome={() => setView('dashboard')}
-          onSearchClient={() => setView('lawyer-search-client')}
-          onViewClient={(client) => { 
-            setSelectedClient(client);
-            setClientListView('lawyer-clients');
-            setView('lawyer-client-detail'); 
-          }}
-        />
-      )}
-      {view === 'lawyer-search-client' && (
-        <LawyerSearchClient
-          onBack={() => setView('lawyer-clients')}
-          onHome={() => setView('dashboard')}
-          onSearch={(filters) => {
-            console.log('Filtros de búsqueda de clientes:', filters);
-            
-            // Mock de clientes para búsqueda
-            const allClients = [
-              {
-                id: 1, nombre: 'Ramiro', apellido: 'Doglio', name: 'Ramiro Doglio',
-                dni: '12345678', telefono: '3534234567', phone: '3534234567', email: 'ramiro@gmail.com',
-                direccion: { calle: 'Carlos Pelegrini', numeroCalle: 865, provincia: 'Córdoba', piso: '1', departamento: '1' },
-                localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
-                piso: '1', departamento: '1',
-                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 2 }, { nombre: 'COMPLETADO', cantidad: 5 }]
-              },
-              {
-                id: 2, nombre: 'Manuel', apellido: 'Veronese', name: 'Manuel Veronese',
-                dni: '23456789', telefono: '3534123123', phone: '3534123123', email: 'manuelveronese@gmail.com',
-                direccion: { calle: 'America', numeroCalle: 1256, provincia: 'Córdoba' },
-                localidad: { nombreLocalidad: 'VILLA MARIA', codigoPostal: '5900' },
-                turnosPorEstado: [{ nombre: 'COMPLETADO', cantidad: 6 }, { nombre: 'PENDIENTE', cantidad: 2 }]
-              },
-              {
-                id: 3, nombre: 'Juan', apellido: 'Perez', name: 'Juan Perez',
-                dni: '34567890', telefono: '3534345678', phone: '3534345678', email: 'juan@gmail.com',
-                direccion: { calle: 'San Martín', numeroCalle: 321, provincia: 'Córdoba', piso: '1', departamento: 'A' },
-                localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
-                piso: '1', departamento: 'A',
-                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 1 }, { nombre: 'COMPLETADO', cantidad: 4 }, { nombre: 'EXPIRO_PAGO', cantidad: 1 }]
-              },
-              {
-                id: 4, nombre: 'Santiago', apellido: 'Gonzales', name: 'Santiago Gonzales',
-                dni: '45678901', telefono: '3534456789', phone: '3534456789', email: 'santiago@gmail.com',
-                direccion: { calle: 'Mitre', numeroCalle: 789, provincia: 'Córdoba' },
-                localidad: { nombreLocalidad: 'Guaymallén', codigoPostal: '5519' },
-                turnosPorEstado: [{ nombre: 'COMPLETADO', cantidad: 2 }, { nombre: 'CANCELADO', cantidad: 1 }]
-              },
-              {
-                id: 5, nombre: 'Catalina', apellido: 'Pereira', name: 'Catalina Pereira',
-                dni: '56789012', telefono: '3534567890', phone: '3534567890', email: 'catalina@gmail.com',
-                direccion: { calle: 'Belgrano', numeroCalle: 456, provincia: 'Córdoba', piso: '2', departamento: 'B' },
-                localidad: { nombreLocalidad: 'Luján', codigoPostal: '5500' },
-                piso: '2', departamento: 'B',
-                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 1 }, { nombre: 'COMPLETADO', cantidad: 3 }]
-              },
-              {
-                id: 6, nombre: 'María', apellido: 'González', name: 'María González',
-                dni: '67890123', telefono: '3534678901', phone: '3534678901', email: 'maria@gmail.com',
-                direccion: { calle: 'Rivadavia', numeroCalle: 123, provincia: 'Córdoba', piso: '3', departamento: 'C' },
-                localidad: { nombreLocalidad: 'CAPITAL', codigoPostal: '5000' },
-                piso: '3', departamento: 'C',
-                turnosPorEstado: [{ nombre: 'COMPLETADO', cantidad: 3 }]
-              },
-              {
-                id: 7, nombre: 'Carlos', apellido: 'Ramírez', name: 'Carlos Ramírez',
-                dni: '78901234', telefono: '3534789012', phone: '3534789012', email: 'carlos@gmail.com',
-                direccion: { calle: 'Las Heras', numeroCalle: 654, provincia: 'Córdoba' },
-                localidad: { nombreLocalidad: 'Godoy Cruz', codigoPostal: '5501' },
-                turnosPorEstado: [{ nombre: 'CONFIRMADO', cantidad: 1 }]
-              }
-            ];
-
-            // Filtrar clientes
-            let filtered = allClients;
-            
-            if (filters.name.trim()) {
-              const term = filters.name.toLowerCase();
-              filtered = filtered.filter(c => {
-                const fullName = c.name || `${c.nombre || ''} ${c.apellido || ''}`;
-                return fullName.toLowerCase().includes(term);
-              });
-            }
-            
-            if (filters.dni.trim()) {
-              filtered = filtered.filter(c => 
-                c.dni.includes(filters.dni)
-              );
-            }
-            
-            if (filters.localidad.trim()) {
-              const term = filters.localidad.toLowerCase();
-              filtered = filtered.filter(c => {
-                const loc = c.localidad?.nombreLocalidad || c.localidad || '';
-                return loc.toLowerCase().includes(term);
-              });
-            }
-
-            setClientSearchResults(filtered);
-            setView('lawyer-search-client-results');
-          }}
-        />
-      )}
-      {view === 'lawyer-search-client-results' && (
-        <LawyerSearchClientResults
-          results={clientSearchResults}
-          onBack={() => setView('lawyer-search-client')}
-          onHome={() => setView('dashboard')}
-          onViewClient={(client) => {
-            setSelectedClient(client);
-            setClientListView('lawyer-search-client-results');
-            setView('lawyer-client-detail');
-          }}
-          onSearchAgain={() => setView('lawyer-search-client')}
-        />
-      )}
-      {view === 'lawyer-client-detail' && (
-        <LawyerClientDetail
-          client={selectedClient}
-          onBack={() => setView(clientListView)}
-          onHome={() => setView('dashboard')}
-          onDeleteClient={(client) => {
-            console.log('Eliminar cliente:', client);
-            alert(`Cliente ${client.name} eliminado exitosamente`);
-            setView('lawyer-clients');
-          }}
-        />
-      )}
-      {view === 'lawyer-search' && (
-        <LawyerSearchAppointment
-          onBack={() => setView('lawyer-appointments')}
-          onHome={() => setView('dashboard')}
-          onSearch={(filters) => {
-            console.log('Filtros de búsqueda:', filters);
-            
-            // Mock de búsqueda - filtrar por los criterios
-            const allAppointments = [
-              {
-                id: 1,
-                number: 1,
-                clientName: 'Ramiro Doglio',
-                date: new Date('2025-12-12T13:00:00'),
-                status: 'cancelled'
-              },
-              {
-                id: 2,
-                number: 2,
-                clientName: 'Ramiro Doglio',
-                date: new Date('2025-11-15T14:30:00'),
-                status: 'pending'
-              },
-              {
-                id: 3,
-                number: 3,
-                clientName: 'María González',
-                date: new Date('2025-12-18T16:00:00'),
-                status: 'confirmed'
-              },
-              {
-                id: 4,
-                number: 4,
-                clientName: 'Carlos Pérez',
-                date: new Date('2025-10-10T12:00:00'),
-                status: 'completed'
-              }
-            ];
-
-            // Filtrar por rango de fechas
-            let filtered = allAppointments.filter(appt => {
-              const apptDate = new Date(appt.date);
-              apptDate.setHours(0, 0, 0, 0);
-              const from = new Date(filters.dateFrom);
-              from.setHours(0, 0, 0, 0);
-              const to = new Date(filters.dateTo);
-              to.setHours(23, 59, 59, 999);
-              return apptDate >= from && apptDate <= to;
-            });
-
-            // Filtrar por estado si se seleccionó uno
-            if (filters.status) {
-              filtered = filtered.filter(appt => appt.status === filters.status);
-            }
-
-            // Filtrar por nombre de cliente si se ingresó uno
-            if (filters.clientName.trim()) {
-              const searchTerm = filters.clientName.toLowerCase();
-              filtered = filtered.filter(appt => 
-                appt.clientName.toLowerCase().includes(searchTerm)
-              );
-            }
-
-            setSearchResults(filtered);
-            setView('lawyer-search-results');
-          }}
-        />
-      )}
-      {view === 'lawyer-search-results' && (
-        <LawyerSearchResults
-          results={searchResults}
-          onBack={() => setView('lawyer-search')}
-          onHome={() => setView('dashboard')}
-          onViewAppointment={(appt) => { 
-            setCurrentAppointment(appt); 
-            setView('lawyer-appointment-detail'); 
-          }}
-        />
-      )}
-      {view === 'lawyer-appointment-detail' && (
-        <LawyerAppointmentDetail
-          appointment={currentAppointment}
-          onBack={() => setView('lawyer-appointments')}
-          onHome={() => setView('dashboard')}
-          onReschedule={() => {
-            setIsRescheduling(true);
-            // Cuando se reprograma, mantener la especialidad y abogado actuales
-            // e ir directo a selección de fecha y hora
-            if (currentAppointment) {
-              setSelectedSpecialty(currentAppointment.specialty);
-              setSelectedLawyer(currentAppointment.lawyer);
-            }
-            setView('new-datetime');
-          }}
-          onCancel={() => {
-            if (confirm('¿Está seguro que desea cancelar este turno?')) {
-              console.log('Turno cancelado:', currentAppointment);
-              alert('Turno cancelado exitosamente');
-              setView('lawyer-appointments');
-            }
-          }}
-          onConfirm={() => {
-            if (confirm('¿Confirmar este turno?')) {
-              console.log('Turno confirmado:', currentAppointment);
-              alert('Turno confirmado exitosamente');
-              setView('lawyer-appointments');
-            }
-          }}
-        />
-      )}
-      {view === 'lawyer-new-client' && (
-        <LawyerNewAppointmentClient
-          onBack={() => setView('lawyer-appointments')}
-          onHome={() => setView('dashboard')}
-          onContinue={(data) => {
-            setClientData(data);
-            setView('new-specialty');
-          }}
-        />
-      )}
-      {view === 'appointment-detail' && (
-        <AppointmentDetail
-          appointment={currentAppointment}
-          onBack={() => setView('dashboard')}
-          onHome={() => setView('dashboard')}
-          onReschedule={handleReschedule}
-          onCancel={handleCancelAppointment}
-        />
-      )}
-      {view === 'new-specialty' && (
-        <NewAppointmentSpecialty 
-          onBack={() => {
-            if (isRescheduling) {
-              setView('appointment-detail');
-            } else if (clientData) {
-              setView('lawyer-new-client');
-            } else {
-              setView('dashboard');
-            }
-          }} 
-          onHome={() => { 
-            setIsRescheduling(false); 
-            setClientData(null);
-            setView('dashboard'); 
-          }} 
-          onSelect={(sp) => { setSelectedSpecialty(sp); setView('new-lawyer'); }}
-        />
-      )}
-      {view === 'new-lawyer' && (
-        <NewAppointmentLawyer
-          selectedSpecialty={selectedSpecialty}
-          onBack={() => setView('new-specialty')}
-          onHome={() => { 
-            setIsRescheduling(false); 
-            setClientData(null);
-            setView('dashboard'); 
-          }}
-          onSelect={(lawyer) => { setSelectedLawyer(lawyer); setView('new-datetime'); }}
-        />
-      )}
-      {view === 'new-datetime' && (
-        <NewAppointmentDateTime
-          selectedSpecialty={selectedSpecialty}
-          selectedLawyer={selectedLawyer}
-          clientData={clientData}
-          isRescheduling={isRescheduling}
-          onBack={() => {
-            // Si estamos reprogramando, volver al detalle del turno
-            if (isRescheduling) {
-              setIsRescheduling(false);
-              // Determinar si es cliente o abogado
-              if (user?.role === 'lawyer') {
-                setView('lawyer-appointment-detail');
-              } else {
-                setView('appointment-detail');
-              }
-            } else {
-              // Si no, volver al paso anterior (selección de abogado)
-              setView('new-lawyer');
-            }
-          }}
-          onHome={() => { 
-            setIsRescheduling(false); 
-            setClientData(null);
-            setView('dashboard'); 
-          }}
-          onConfirm={handlePaymentRedirect}
-        />
-      )}
-      {view === 'admin-manage-lawyers' && (
-        <AdminManageLawyers
-          onBack={() => setView('dashboard')}
-          onHome={() => setView('dashboard')}
-          onCreateLawyer={() => setView('admin-create-lawyer')}
-          onUpdateLawyer={() => setView('admin-update-lawyer')}
-        />
-      )}
-      {view === 'admin-manage-pricing' && (
-        <AdminManagePricing
-          onBack={() => setView('dashboard')}
-          onHome={() => setView('dashboard')}
-        />
-      )}
-      {view === 'admin-create-lawyer' && (
-        <AdminCreateLawyer
-          onBack={() => setView('admin-manage-lawyers')}
-          onHome={() => setView('dashboard')}
-          onUserFound={(user) => {
-            setSelectedUserToPromote(user);
-            setView('admin-user-found');
-          }}
-        />
-      )}
-      {view === 'admin-user-found' && selectedUserToPromote && (
-        <AdminUserFound
-          user={selectedUserToPromote}
-          onBack={() => setView('admin-create-lawyer')}
-          onHome={() => setView('dashboard')}
-          onConfirm={() => {
-            // Ir al formulario de completar datos del abogado
-            setView('admin-create-lawyer-form');
-          }}
-          onSearchAgain={() => {
-            setSelectedUserToPromote(null);
-            setView('admin-create-lawyer');
-          }}
-        />
-      )}
-      {view === 'admin-create-lawyer-form' && selectedUserToPromote && (
-        <AdminCreateLawyerForm
-          user={selectedUserToPromote}
-          onBack={() => setView('admin-user-found')}
-          onHome={() => setView('dashboard')}
-          onConfirm={(lawyerData) => {
-            // TODO: Enviar datos al backend para crear el abogado
-            console.log('Abogado creado exitosamente:', lawyerData);
-            alert(`¡Abogado creado exitosamente!\n\nNombre: ${lawyerData.name}\nMatrícula: ${lawyerData.matricula}\nEspecialidades: ${lawyerData.specialties.length}`);
-            setSelectedUserToPromote(null);
-            setView('admin-manage-lawyers');
-          }}
-          onCancel={() => {
-            if (confirm('¿Está seguro que desea cancelar la creación del abogado?')) {
-              setSelectedUserToPromote(null);
-              setView('admin-manage-lawyers');
-            }
-          }}
-        />
-      )}
-      {view === 'admin-update-lawyer' && (
-        <AdminUpdateLawyer
-          onBack={() => setView('admin-manage-lawyers')}
-          onHome={() => setView('dashboard')}
-          onSelectLawyer={(lawyer) => {
-            setSelectedLawyerToUpdate(lawyer);
-            setView('admin-update-lawyer-form');
-          }}
-        />
-      )}
-      {view === 'admin-update-lawyer-form' && selectedLawyerToUpdate && (
-        <AdminUpdateLawyerForm
-          lawyer={selectedLawyerToUpdate}
-          onUpdate={(updatedLawyer) => {
-            // TODO: Enviar datos al backend para actualizar el abogado
-            console.log('Abogado actualizado:', updatedLawyer);
-            alert(`¡Abogado actualizado exitosamente!\n\nNombre: ${updatedLawyer.name}\nMatrícula: ${updatedLawyer.matricula}\nEspecialidades: ${updatedLawyer.specialties.length}`);
-            setSelectedLawyerToUpdate(null);
-            setView('admin-manage-lawyers');
-          }}
-          onCancel={() => {
-            if (confirm('¿Está seguro que desea cancelar la edición del abogado?')) {
-              setSelectedLawyerToUpdate(null);
-              setView('admin-manage-lawyers');
-            }
-          }}
-          onGoHome={() => {
-            setSelectedLawyerToUpdate(null);
-            setView('dashboard');
-          }}
-        />
-      )}
+      <Navbar />
+      <Outlet context={{ user }} />
     </>
-  )
+  );
 }
 
-export default App
+function AppointmentWizardLayout() {
+  return (
+    <AppointmentProvider>
+      <Outlet />
+    </AppointmentProvider>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/register-success" element={<RegisterSuccess />} />
+
+      <Route element={<ProtectedRoute><AuthLayout /></ProtectedRoute>}>
+        <Route path="/role-selector" element={<RoleSelector />} />
+        <Route path="/dashboard" element={<DashboardRouter />} />
+        <Route path="/dashboard/client" element={<ClientDashboard />} />
+        <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
+        <Route path="/dashboard/admin" element={<AdminDashboard />} />
+        <Route path="/profile" element={<EditProfile />} />
+        <Route path="/appointments/:id" element={<AppointmentDetail />} />
+
+        <Route element={<AppointmentWizardLayout />}>
+          <Route path="/appointments/new/specialty" element={<NewAppointmentSpecialty />} />
+          <Route path="/appointments/new/lawyer" element={<NewAppointmentLawyer />} />
+          <Route path="/appointments/new/datetime" element={<NewAppointmentDateTime />} />
+        </Route>
+
+        <Route element={<LawyerRoute />}>
+          <Route path="/lawyer/appointments" element={<LawyerAppointments />} />
+          <Route path="/lawyer/appointments/:id" element={<LawyerAppointmentDetail />} />
+          <Route path="/lawyer/appointments/search" element={<LawyerSearchAppointment />} />
+          <Route path="/lawyer/appointments/search/results" element={<LawyerSearchResults />} />
+          <Route path="/lawyer/appointments/new/client" element={<LawyerNewAppointmentClient />} />
+          <Route path="/lawyer/history" element={<LawyerHistory />} />
+          <Route path="/lawyer/clients" element={<LawyerClients />} />
+          <Route path="/lawyer/clients/:id" element={<LawyerClientDetail />} />
+          <Route path="/lawyer/clients/search" element={<LawyerSearchClient />} />
+          <Route path="/lawyer/clients/search/results" element={<LawyerSearchClientResults />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/lawyers" element={<AdminManageLawyers />} />
+          <Route path="/admin/lawyers/create" element={<AdminCreateLawyer />} />
+          <Route path="/admin/lawyers/create/user-found" element={<AdminUserFound />} />
+          <Route path="/admin/lawyers/create/form" element={<AdminCreateLawyerForm />} />
+          <Route path="/admin/lawyers/update" element={<AdminUpdateLawyer />} />
+          <Route path="/admin/lawyers/update/form" element={<AdminUpdateLawyerForm />} />
+          <Route path="/admin/pricing" element={<AdminManagePricing />} />
+        </Route>
+      </Route>
+
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
+}
+
+export default App;
