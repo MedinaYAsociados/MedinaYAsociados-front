@@ -79,6 +79,13 @@ function AppointmentDetail() {
           </div>
 
           <div className="space-y-3 pt-4">
+            <button
+              onClick={() => navigate(`/appointments/${appointment.id}/history`, { state: { appointment } })}
+              className="w-full px-8 py-4 bg-[#6C7F94] hover:bg-[#5A6D82] text-white font-extrabold
+                       rounded-2xl shadow-medium hover:shadow-elevated active:scale-[0.99] transition-all"
+            >
+              Ver historial del Turno
+            </button>
             {canReschedule && (
               <button
                 onClick={() => navigate('/appointments/new/datetime', { state: { reschedule: appointment } })}

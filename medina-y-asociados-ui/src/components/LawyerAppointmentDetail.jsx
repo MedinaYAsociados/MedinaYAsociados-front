@@ -158,6 +158,22 @@ function LawyerAppointmentDetail() {
             </button>
           )}
           <button
+            onClick={() => navigate(`/lawyer/appointments/${appointment.id}/history`, { state: { appointment } })}
+            className="w-full px-6 py-3.5 bg-[#6C7F94]/70 hover:bg-[#6C7F94]/90 border-2 border-[#C6A15B] text-white 
+                     font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                     transition-all focus:outline-none focus:ring-4 focus:ring-[#6C7F94]/30"
+          >
+            Ver historial del Turno
+          </button>
+          <button
+            onClick={() => navigate(`/lawyer/appointments/${appointment.id}/cobro`, { state: { appointment } })}
+            className="w-full px-6 py-3.5 bg-[#C6A15B]/70 hover:bg-[#C6A15B]/90 border-2 border-[#C6A15B] text-white 
+                     font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                     transition-all focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+          >
+            Ver cobro del Turno
+          </button>
+          <button
             onClick={() => { startReschedule(appointment); navigate('/lawyer/appointments/new/client'); }}
             className="w-full px-6 py-3.5 bg-[#9C8B78]/70 hover:bg-[#9C8B78]/90 border-2 border-[#C6A15B] text-white 
                      font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 

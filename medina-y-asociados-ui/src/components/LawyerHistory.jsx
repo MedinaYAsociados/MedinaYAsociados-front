@@ -64,32 +64,18 @@ function LawyerHistory() {
       number: 1,
       clientName: 'Ramiro Doglio',
       date: new Date('2025-12-12T13:00:00'),
-      status: 'cancelled'
-    },
-    {
-      id: 2,
-      number: 1,
-      clientName: 'Ramiro Doglio',
-      date: new Date('2025-12-12T13:00:00'),
-      status: 'pending'
-    },
-    {
-      id: 3,
-      number: 1,
-      clientName: 'Ramiro Doglio',
-      date: new Date('2025-12-12T13:00:00'),
-      status: 'confirmed'
-    },
-    {
-      id: 4,
-      number: 4,
-      clientName: 'Ana Martínez',
-      date: new Date('2025-10-10T15:30:00'),
       status: 'completed'
     },
     {
+      id: 4,
+      number: 2,
+      clientName: 'Ana Martínez',
+      date: new Date('2025-10-10T15:30:00'),
+      status: 'cancelled'
+    },
+    {
       id: 5,
-      number: 5,
+      number: 3,
       clientName: 'Luis Rodríguez',
       date: new Date('2025-09-20T11:00:00'),
       status: 'rescheduled'

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useOutletContext } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { AppointmentProvider } from './context/AppointmentContext';
 import { ProtectedRoute, AdminRoute, LawyerRoute } from './components/ProtectedRoute';
@@ -32,6 +32,8 @@ import NewAppointmentSpecialty from './components/NewAppointmentSpecialty';
 import NewAppointmentLawyer from './components/NewAppointmentLawyer';
 import NewAppointmentDateTime from './components/NewAppointmentDateTime';
 import AppointmentDetail from './components/AppointmentDetail';
+import TurnoHistory from './components/TurnoHistory';
+import TurnoCobro from './components/TurnoCobro';
 import EditProfile from './components/EditProfile';
 
 function AuthLayout() {
@@ -52,6 +54,15 @@ function AppointmentWizardLayout() {
   );
 }
 
+function LawyerAppointmentLayout() {
+  const outletCtx = useOutletContext();
+  return (
+    <AppointmentProvider>
+      <Outlet context={outletCtx} />
+    </AppointmentProvider>
+  );
+}
+
 function App() {
   return (
     <Routes>
@@ -67,6 +78,7 @@ function App() {
         <Route path="/dashboard/admin" element={<AdminDashboard />} />
         <Route path="/profile" element={<EditProfile />} />
         <Route path="/appointments/:id" element={<AppointmentDetail />} />
+        <Route path="/appointments/:id/history" element={<TurnoHistory />} />
 
         <Route element={<AppointmentWizardLayout />}>
           <Route path="/appointments/new/specialty" element={<NewAppointmentSpecialty />} />
@@ -75,16 +87,20 @@ function App() {
         </Route>
 
         <Route element={<LawyerRoute />}>
-          <Route path="/lawyer/appointments" element={<LawyerAppointments />} />
-          <Route path="/lawyer/appointments/:id" element={<LawyerAppointmentDetail />} />
-          <Route path="/lawyer/appointments/search" element={<LawyerSearchAppointment />} />
-          <Route path="/lawyer/appointments/search/results" element={<LawyerSearchResults />} />
-          <Route path="/lawyer/appointments/new/client" element={<LawyerNewAppointmentClient />} />
-          <Route path="/lawyer/history" element={<LawyerHistory />} />
-          <Route path="/lawyer/clients" element={<LawyerClients />} />
-          <Route path="/lawyer/clients/:id" element={<LawyerClientDetail />} />
-          <Route path="/lawyer/clients/search" element={<LawyerSearchClient />} />
-          <Route path="/lawyer/clients/search/results" element={<LawyerSearchClientResults />} />
+          <Route element={<LawyerAppointmentLayout />}>
+            <Route path="/lawyer/appointments" element={<LawyerAppointments />} />
+            <Route path="/lawyer/appointments/:id" element={<LawyerAppointmentDetail />} />
+            <Route path="/lawyer/appointments/:id/history" element={<TurnoHistory />} />
+            <Route path="/lawyer/appointments/:id/cobro" element={<TurnoCobro />} />
+            <Route path="/lawyer/appointments/search" element={<LawyerSearchAppointment />} />
+            <Route path="/lawyer/appointments/search/results" element={<LawyerSearchResults />} />
+            <Route path="/lawyer/appointments/new/client" element={<LawyerNewAppointmentClient />} />
+            <Route path="/lawyer/history" element={<LawyerHistory />} />
+            <Route path="/lawyer/clients" element={<LawyerClients />} />
+            <Route path="/lawyer/clients/:id" element={<LawyerClientDetail />} />
+            <Route path="/lawyer/clients/search" element={<LawyerSearchClient />} />
+            <Route path="/lawyer/clients/search/results" element={<LawyerSearchClientResults />} />
+          </Route>
         </Route>
 
         <Route element={<AdminRoute />}>
