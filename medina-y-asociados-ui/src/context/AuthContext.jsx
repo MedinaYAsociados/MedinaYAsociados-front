@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { setAuthToken } from '../services/apiClient';
+import { logout as authLogout } from '../services/auth';
 
 const AuthContext = createContext(null);
 
@@ -49,11 +50,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
+    authLogout();
     setUser(null);
     setToken(null);
-    setAuthToken(null);
-    localStorage.removeItem(STORAGE_KEY_TOKEN);
-    localStorage.removeItem(STORAGE_KEY_USER);
   }, []);
 
   const isAuthenticated = useCallback(() => !!token, [token]);

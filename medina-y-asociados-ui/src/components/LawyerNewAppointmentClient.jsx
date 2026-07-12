@@ -1,22 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { useAppointment } from '../context/AppointmentContext';
+import { getLocalidades } from '../services/localidades';
 
 function LawyerNewAppointmentClient() {
   const navigate = useNavigate();
   const { setClientData } = useAppointment();
+  const [localidades, setLocalidades] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     dni: '',
     phone: '',
+    email: '',
     locality: '',
     street: '',
     number: '',
     floor: '',
     apartment: ''
   });
+
+  useEffect(() => {
+    getLocalidades().then(setLocalidades).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredLocalidades = localidades.filter(l =>
+    l.nombreLocalidad.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setShowDropdown(true);
+    if (formData.locality) {
+      setFormData(prev => ({ ...prev, locality: '' }));
+    }
+  };
+
+  const handleSelectLocalidad = (loc) => {
+    setSearchTerm(`${loc.nombreLocalidad} (${loc.codigoPostal})`);
+    setFormData(prev => ({ ...prev, locality: loc.idLocalidad }));
+    setShowDropdown(false);
+  };
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -26,6 +65,10 @@ function LawyerNewAppointmentClient() {
     e.preventDefault();
     if (!formData.firstName || !formData.lastName || !formData.dni || !formData.phone) {
       alert('Por favor complete los campos obligatorios');
+      return;
+    }
+    if (!formData.locality) {
+      alert('Seleccione una localidad de la lista');
       return;
     }
     setClientData(formData);
@@ -137,25 +180,58 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Localidad */}
+            {/* Email */}
             <div className="space-y-2">
+              <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
+                Email
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange('email', e.target.value)}
+                placeholder="Escribe aquí"
+                className="w-full px-4 py-2.5 bg-white/60 border-2 border-[#6B4423]/30 rounded-xl 
+                         text-[#53667B] placeholder-[#9C8B78]/60 text-sm sm:text-base
+                         focus:outline-none focus:border-[#6B4423] focus:ring-4 focus:ring-[#6B4423]/10
+                         transition-all shadow-soft hover:shadow-medium"
+              />
+            </div>
+
+            {/* Localidad */}
+            <div className="space-y-2 relative" ref={dropdownRef}>
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Localidad
               </label>
-              <select
-                value={formData.locality}
-                onChange={(e) => handleChange('locality', e.target.value)}
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="Buscar localidad..."
                 className="w-full px-4 py-2.5 bg-white/60 border-2 border-[#6B4423]/30 rounded-xl 
-                         text-[#53667B] text-sm sm:text-base
+                         text-[#53667B] placeholder-[#9C8B78]/60 text-sm sm:text-base
                          focus:outline-none focus:border-[#6B4423] focus:ring-4 focus:ring-[#6B4423]/10
-                         transition-all shadow-soft hover:shadow-medium appearance-none cursor-pointer"
-              >
-                <option value="">Seleccionar</option>
-                <option value="Rosario">Rosario</option>
-                <option value="Santa Fe">Santa Fe</option>
-                <option value="Córdoba">Córdoba</option>
-                <option value="Buenos Aires">Buenos Aires</option>
-              </select>
+                         transition-all shadow-soft hover:shadow-medium"
+              />
+              {showDropdown && (
+                <ul className="absolute z-10 w-full mt-1 bg-white border-2 border-[#C6A15B]/30 rounded-xl 
+                               shadow-elevated max-h-48 overflow-y-auto">
+                  {filteredLocalidades.length === 0 ? (
+                    <li className="px-4 py-2 text-[#53667B]/60 text-sm">Sin resultados</li>
+                  ) : (
+                    filteredLocalidades.map(l => (
+                      <li
+                        key={l.idLocalidad}
+                        onClick={() => handleSelectLocalidad(l)}
+                        className="px-4 py-2 text-[#53667B] text-sm cursor-pointer hover:bg-[#C6A15B]/20 
+                                   transition-colors"
+                      >
+                        {l.nombreLocalidad} ({l.codigoPostal})
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
             </div>
 
             {/* Calle */}

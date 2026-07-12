@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { crearAbogado } from '../services/abogados';
+import { getSpecialties } from '../services/specialties';
 
-function SpecialtyButton({ name, emoji, selected, onClick }) {
+function SpecialtyButton({ name, selected, onClick }) {
   return (
     <button
       onClick={onClick}
@@ -14,7 +16,7 @@ function SpecialtyButton({ name, emoji, selected, onClick }) {
                    : 'bg-black/10 text-[#53667B] hover:bg-black/15'
                  }`}
     >
-      {name} {emoji}
+      {name}
     </button>
   );
 }
@@ -26,27 +28,26 @@ function AdminCreateLawyerForm() {
 
   const [matricula, setMatricula] = useState('');
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
+  const [specialtiesList, setSpecialtiesList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingList, setLoadingList] = useState(true);
 
-  const specialties = [
-    { id: 'familia', name: 'FAMILIA', emoji: '⚖️' },
-    { id: 'penal', name: 'PENAL', emoji: '👮' },
-    { id: 'laboral', name: 'LABORAL', emoji: '💼' },
-    { id: 'civil', name: 'CIVIL', emoji: '🏠' },
-    { id: 'comercial', name: 'COMERCIAL', emoji: '🏢' },
-    { id: 'administrativo', name: 'ADMINISTRATIVO', emoji: '🏛️' }
-  ];
+  useEffect(() => {
+    getSpecialties()
+      .then(list => setSpecialtiesList(list))
+      .catch(() => {})
+      .finally(() => setLoadingList(false));
+  }, []);
 
-  const toggleSpecialty = (specialtyId) => {
-    setSelectedSpecialties(prev => {
-      if (prev.includes(specialtyId)) {
-        return prev.filter(id => id !== specialtyId);
-      } else {
-        return [...prev, specialtyId];
-      }
-    });
+  const toggleSpecialty = (id) => {
+    setSelectedSpecialties(prev =>
+      prev.includes(id)
+        ? prev.filter(s => s !== id)
+        : [...prev, id]
+    );
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!matricula.trim()) {
       alert('Por favor ingrese la matrícula');
       return;
@@ -57,16 +58,18 @@ function AdminCreateLawyerForm() {
       return;
     }
 
-    // TODO: Enviar datos al backend
-    const lawyerData = {
-      ...user,
-      matricula,
-      specialties: selectedSpecialties,
-      role: 'lawyer'
-    };
-    
-    console.log('Creando abogado:', lawyerData);
-    navigate('/admin/lawyers');
+    setLoading(true);
+    try {
+      await crearAbogado(user.id, {
+        matricula: matricula.trim(),
+        especialidadesAbogado: selectedSpecialties,
+      });
+      navigate('/admin/lawyers');
+    } catch (err) {
+      alert(err.message || 'Error al crear el abogado');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -132,31 +135,36 @@ function AdminCreateLawyerForm() {
             <h3 className="text-xl font-bold text-[#53667B] text-center mb-4">
               Especialidades
             </h3>
-            <div className="space-y-3">
-              {specialties.map(specialty => (
-                <SpecialtyButton
-                  key={specialty.id}
-                  name={specialty.name}
-                  emoji={specialty.emoji}
-                  selected={selectedSpecialties.includes(specialty.id)}
-                  onClick={() => toggleSpecialty(specialty.id)}
-                />
-              ))}
-            </div>
+            {loadingList ? (
+              <p className="text-center text-[#53667B]">Cargando especialidades...</p>
+            ) : (
+              <div className="space-y-3">
+                {specialtiesList.map(spec => (
+                  <SpecialtyButton
+                    key={spec.id}
+                    name={spec.title}
+                    selected={selectedSpecialties.includes(spec.id)}
+                    onClick={() => toggleSpecialty(spec.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Botones de acción */}
           <div className="space-y-3 pt-4">
             <button
               onClick={handleConfirm}
+              disabled={loading}
               className="w-full px-6 py-4 bg-[#C6A15B] hover:bg-[#A8C495]
                        border-2 border-[#C6A15B] rounded-2xl
                        text-[#53667B] text-lg sm:text-xl font-bold
                        shadow-medium hover:shadow-elevated
                        active:scale-[0.98] transition-all duration-200
-                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirmar abogado
+              {loading ? 'Creando...' : 'Confirmar abogado'}
             </button>
 
             <button

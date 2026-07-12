@@ -27,7 +27,7 @@ import LawyerHistory from './components/LawyerHistory';
 import LawyerClients from './components/LawyerClients';
 import LawyerClientDetail from './components/LawyerClientDetail';
 import LawyerSearchClient from './components/LawyerSearchClient';
-import LawyerSearchClientResults from './components/LawyerSearchClientResults';
+
 import NewAppointmentSpecialty from './components/NewAppointmentSpecialty';
 import NewAppointmentLawyer from './components/NewAppointmentLawyer';
 import NewAppointmentDateTime from './components/NewAppointmentDateTime';
@@ -35,32 +35,25 @@ import AppointmentDetail from './components/AppointmentDetail';
 import TurnoHistory from './components/TurnoHistory';
 import TurnoCobro from './components/TurnoCobro';
 import EditProfile from './components/EditProfile';
+import PaymentResult from './components/PaymentResult';
 
 function AuthLayout() {
   const { user } = useAuth();
   return (
-    <>
+    <AppointmentProvider>
       <Navbar />
       <Outlet context={{ user }} />
-    </>
+    </AppointmentProvider>
   );
 }
 
 function AppointmentWizardLayout() {
-  return (
-    <AppointmentProvider>
-      <Outlet />
-    </AppointmentProvider>
-  );
+  return <Outlet />;
 }
 
 function LawyerAppointmentLayout() {
   const outletCtx = useOutletContext();
-  return (
-    <AppointmentProvider>
-      <Outlet context={outletCtx} />
-    </AppointmentProvider>
-  );
+  return <Outlet context={outletCtx} />;
 }
 
 function App() {
@@ -77,6 +70,7 @@ function App() {
         <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
         <Route path="/dashboard/admin" element={<AdminDashboard />} />
         <Route path="/profile" element={<EditProfile />} />
+        <Route path="/payment/:id/result" element={<PaymentResult />} />
         <Route path="/appointments/:id" element={<AppointmentDetail />} />
         <Route path="/appointments/:id/history" element={<TurnoHistory />} />
 
@@ -99,7 +93,6 @@ function App() {
             <Route path="/lawyer/clients" element={<LawyerClients />} />
             <Route path="/lawyer/clients/:id" element={<LawyerClientDetail />} />
             <Route path="/lawyer/clients/search" element={<LawyerSearchClient />} />
-            <Route path="/lawyer/clients/search/results" element={<LawyerSearchClientResults />} />
           </Route>
         </Route>
 

@@ -17,7 +17,8 @@ function LawyerSearchResults() {
       'attended': 'bg-[#8FBC8F]',
       'no-show': 'bg-[#D4A5A5]',
       'paid': 'bg-[#6C7F94]',
-      'in-progress': 'bg-[#A5C4D4]'
+      'in-progress': 'bg-[#A5C4D4]',
+      'expired': 'bg-[#D4A5A5]',
     };
     return colors[status] || 'bg-gray-300';
   };
@@ -32,7 +33,8 @@ function LawyerSearchResults() {
       'attended': 'Asistió',
       'no-show': 'No Asistió',
       'paid': 'Pagado',
-      'in-progress': 'En Curso'
+      'in-progress': 'En Curso',
+      'expired': 'Expiró Pago',
     };
     return labels[status] || status;
   };

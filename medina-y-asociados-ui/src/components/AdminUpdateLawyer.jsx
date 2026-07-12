@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { listarAbogados } from '../services/abogados';
 
 function LawyerCard({ lawyer, onClick }) {
   return (
@@ -23,60 +24,19 @@ function AdminUpdateLawyer() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Cargar abogados desde el backend
-    // Simulando carga de datos
-    setTimeout(() => {
-      const mockLawyers = [
-        {
-          id: 'lawyer-1',
-          name: 'Ramiro Doglio',
-          email: 'ramiro@example.com',
-          matricula: '12345',
-          specialties: ['familia', 'civil'],
-          phone: '3534234567',
-          localidad: 'Capital'
-        },
-        {
-          id: 'lawyer-2',
-          name: 'Manuel Veronese',
-          email: 'manuelveronese@gmail.com',
-          matricula: '23456',
-          specialties: ['penal', 'laboral'],
-          phone: '3534123123',
-          localidad: 'Villa Maria'
-        },
-        {
-          id: 'lawyer-3',
-          name: 'Juan Perez',
-          email: 'juan@example.com',
-          matricula: '34567',
-          specialties: ['comercial'],
-          phone: '3534345678',
-          localidad: 'Capital'
-        },
-        {
-          id: 'lawyer-4',
-          name: 'Santiago Gonzales',
-          email: 'santiago@example.com',
-          matricula: '45678',
-          specialties: ['administrativo', 'civil'],
-          phone: '3534456789',
-          localidad: 'Guaymallén'
-        },
-        {
-          id: 'lawyer-5',
-          name: 'Catalina Pereira',
-          email: 'catalina@example.com',
-          matricula: '56789',
-          specialties: ['familia', 'penal'],
-          phone: '3534567890',
-          localidad: 'Luján'
-        }
-      ];
-      
-      setLawyers(mockLawyers);
-      setLoading(false);
-    }, 500);
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await listarAbogados();
+        if (mounted) setLawyers(data);
+      } catch {
+        // fallback empty
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
   }, []);
 
   return (
@@ -122,12 +82,7 @@ function AdminUpdateLawyer() {
                   key={lawyer.id}
                   lawyer={lawyer}
                   onClick={() => {
-                    // Normalizar specialties a mayúsculas para el form
-                    const normalizedLawyer = {
-                      ...lawyer,
-                      specialties: (lawyer.specialties || []).map(s => s.toUpperCase()),
-                    };
-                    navigate('/admin/lawyers/update/form', { state: { lawyer: normalizedLawyer } });
+                    navigate('/admin/lawyers/update/form', { state: { lawyer } });
                   }}
                 />
               ))}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { getAppointments } from '../services/appointments';
+import { listarTurnosCliente } from '../services/turnos';
 import { formatAppointmentDate, isPast } from '../utils/date';
 
 function AppointmentCard({ appt, onClick }) {
@@ -30,17 +30,34 @@ function ClientDashboard() {
   const [tab, setTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       setLoading(true);
-      const data = await getAppointments();
-      if (mounted) setList(data);
-      setLoading(false);
+      try {
+        const data = await listarTurnosCliente(user.idUsuario, page);
+        if (mounted) {
+          setList((data.content || data || []).map(t => ({
+            id: t.idTurno,
+            number: t.idTurno,
+            lawyer: t.persona || '',
+            date: t.fechaHora,
+            specialty: t.especialidad || '',
+            observations: t.observacionesCliente || '',
+            status: t.estado?.toLowerCase() || 'pending',
+          })));
+          setTotalPages(data.totalPages || 1);
+        }
+      } catch {
+        // empty
+      }
+      if (mounted) setLoading(false);
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [user.idUsuario, page]);
 
   const upcoming = useMemo(() => list.filter(a => !isPast(a.date)), [list]);
   const past = useMemo(() => list.filter(a => isPast(a.date)), [list]);
@@ -94,6 +111,25 @@ function ClientDashboard() {
                   onClick={() => navigate(`/appointments/${appt.id}`, { state: { appointment: appt } })}
                 />
               ))}
+            </div>
+          )}
+          {totalPages > 1 && !loading && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Anterior
+              </button>
+              <span className="text-[#53667B] font-semibold">Página {page + 1} de {totalPages}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page >= totalPages - 1}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Siguiente
+              </button>
             </div>
           )}
         </div>

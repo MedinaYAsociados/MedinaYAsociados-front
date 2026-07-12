@@ -1,5 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { formatAppointmentDate } from '../utils/date';
+import { listarTurnosAbogado } from '../services/turnos';
 
 const getStatusColor = (status) => {
   const colors = {
@@ -11,7 +13,8 @@ const getStatusColor = (status) => {
     attended: 'bg-[#8FBC8F]/70',
     'no-show': 'bg-[#D4A5A5]/70',
     paid: 'bg-[#6C7F94]/70',
-    'in-progress': 'bg-[#A5C4D4]/70'
+    'in-progress': 'bg-[#A5C4D4]/70',
+    expired: 'bg-[#D4A5A5]/70',
   };
   return colors[status] || 'bg-white/70';
 };
@@ -26,7 +29,8 @@ const getStatusLabel = (status) => {
     attended: 'Asistió',
     'no-show': 'No Asistió',
     paid: 'Pagado',
-    'in-progress': 'En Curso'
+    'in-progress': 'En Curso',
+    expired: 'Expiró Pago',
   };
   return labels[status] || status;
 };
@@ -56,31 +60,51 @@ function HistoryAppointmentCard({ appt, onClick }) {
   );
 }
 
+const statusMap = {
+  pendiente: 'pending',
+  confirmado: 'confirmed',
+  completado: 'completed',
+  finalizado: 'completed',
+  cancelado: 'cancelled',
+  reprogramado: 'rescheduled',
+  asistio: 'attended',
+  no_asistio: 'no-show',
+  pagado: 'paid',
+  en_curso: 'in-progress',
+  expiro_pago: 'expired',
+};
+
 function LawyerHistory() {
   const navigate = useNavigate();
-  const historyAppointments = [
-    {
-      id: 1,
-      number: 1,
-      clientName: 'Ramiro Doglio',
-      date: new Date('2025-12-12T13:00:00'),
-      status: 'completed'
-    },
-    {
-      id: 4,
-      number: 2,
-      clientName: 'Ana Martínez',
-      date: new Date('2025-10-10T15:30:00'),
-      status: 'cancelled'
-    },
-    {
-      id: 5,
-      number: 3,
-      clientName: 'Luis Rodríguez',
-      date: new Date('2025-09-20T11:00:00'),
-      status: 'rescheduled'
-    }
-  ];
+  const { user } = useOutletContext();
+  const [historyAppointments, setHistoryAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await listarTurnosAbogado(user?.idUsuario, page);
+        if (mounted) {
+          setHistoryAppointments((data.content || data || []).map(t => ({
+            id: t.idTurno,
+            number: t.idTurno,
+            clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '—',
+            date: t.fechaHora || t.horarioTurno,
+            status: statusMap[(t.estado || t.nombreEstado || '').toLowerCase().replace(/\s+/g, '_')] || (t.estado || t.nombreEstado || '').toLowerCase() || 'pending',
+          })));
+          setTotalPages(data.totalPages || 1);
+        }
+      } catch {
+        // empty
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [user?.idUsuario, page]);
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
@@ -109,7 +133,9 @@ function LawyerHistory() {
 
         {/* List container */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6 animate-slide-up">
-          {historyAppointments.length === 0 ? (
+          {loading ? (
+            <p className="text-center text-[#53667B]">Cargando historial...</p>
+          ) : historyAppointments.length === 0 ? (
             <p className="text-center text-[#53667B]">No hay turnos en el historial.</p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -117,9 +143,28 @@ function LawyerHistory() {
                 <HistoryAppointmentCard 
                   key={appt.id} 
                   appt={appt} 
-                  onClick={() => navigate(`/lawyer/appointments/${appt.id}`, { state: { appointment: appt } })}
+                  onClick={() => navigate(`/lawyer/appointments/${appt.id}`)}
                 />
               ))}
+            </div>
+          )}
+          {totalPages > 1 && !loading && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Anterior
+              </button>
+              <span className="text-[#53667B] font-semibold">Página {page + 1} de {totalPages}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page >= totalPages - 1}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Siguiente
+              </button>
             </div>
           )}
         </div>

@@ -1,36 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
-import { getCobroPorTurno, getDetallesCobro } from '../services/turnos';
+import { getDetallesCobro } from '../services/turnos';
 import { formatAppointmentDate } from '../utils/date';
 
 function TurnoCobro() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const appointment = location.state?.appointment;
-
   const [cobro, setCobro] = useState(null);
-  const [detalles, setDetalles] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getCobroPorTurno(id)
-      .then(async (res) => {
-        if (cancelled) return;
-        setCobro(res);
-        if (res?.idCobro) {
-          try {
-            const det = await getDetallesCobro(res.idCobro);
-            if (!cancelled) setDetalles(det);
-          } catch {
-            // detalles opcionales, no bloquear
-          }
-        }
-      })
+    getDetallesCobro(id)
+      .then((res) => { if (!cancelled) setCobro(res); })
       .catch((err) => { if (!cancelled) setError(err.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
@@ -69,7 +54,7 @@ function TurnoCobro() {
     );
   }
 
-  const displayCobro = detalles || cobro;
+  const displayCobro = cobro;
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
@@ -81,7 +66,7 @@ function TurnoCobro() {
           <button onClick={() => navigate('/dashboard/lawyer')} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Inicio">
             <MdHome className="w-9 h-9" />
           </button>
-          <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Cobro - N° Turno: {appointment?.number || id}</h1>
+          <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Cobro - N° Turno: {id}</h1>
         </div>
 
         {!displayCobro ? (

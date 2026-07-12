@@ -1,21 +1,14 @@
-// Mock service para horarios disponibles
-const TIME_SLOTS = [
-  '12:00hs',
-  '12:45hs',
-  '13:30hs',
-  '14:15hs',
-  '15:00hs',
-  '15:45hs',
-  '16:30hs'
-];
+import api from './apiClient';
 
-export async function getAvailableTimeSlots(lawyerId, date) {
-  await new Promise(r => setTimeout(r, 300));
-  
-  // Simular algunos horarios ocupados aleatoriamente
-  const availableSlots = TIME_SLOTS.filter(() => Math.random() > 0.25);
-  
-  return availableSlots.length > 0 ? availableSlots : TIME_SLOTS.slice(0, 4);
+export async function getAvailableTimeSlots(idUsuario, date) {
+  if (!date) return [];
+  const fechaStr = date instanceof Date
+    ? date.toISOString().split('T')[0]
+    : date;
+  const data = await api.get(`/abogados/${idUsuario}/horarios-disponibles?fecha=${fechaStr}`);
+  // Backend returns ["HH:mm:ss"], format to "HH:mmhs" for display
+  return (data || []).map(t => {
+    const [h, m] = t.split(':');
+    return `${h}:${m}hs`;
+  });
 }
-
-export default TIME_SLOTS;

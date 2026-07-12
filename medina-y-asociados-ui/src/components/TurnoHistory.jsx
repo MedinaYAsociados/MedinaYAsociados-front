@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { getHistorial } from '../services/turnos';
 import { formatAppointmentDate } from '../utils/date';
@@ -7,9 +7,6 @@ import { formatAppointmentDate } from '../utils/date';
 function TurnoHistory() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const appointment = location.state?.appointment;
-
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,7 +54,7 @@ function TurnoHistory() {
     );
   }
 
-  const isLawyerRoute = location.pathname.startsWith('/lawyer');
+  const isLawyerRoute = window.location.pathname.startsWith('/lawyer');
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
@@ -69,7 +66,7 @@ function TurnoHistory() {
           <button onClick={() => navigate(isLawyerRoute ? '/dashboard/lawyer' : '/dashboard')} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Inicio">
             <MdHome className="w-9 h-9" />
           </button>
-          <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Historial - N° Turno: {appointment?.number || data.idTurno}</h1>
+          <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Historial - N° Turno: {data.idTurno}</h1>
         </div>
 
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-5 sm:p-8 space-y-5">

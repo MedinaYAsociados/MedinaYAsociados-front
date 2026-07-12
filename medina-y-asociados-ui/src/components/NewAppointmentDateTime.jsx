@@ -1,90 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppointment } from '../context/AppointmentContext';
+import { useAuth } from '../context/AuthContext';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { getAvailableTimeSlots } from '../services/timeSlots';
-
-// Componente Calendario simple
-function Calendar({ selectedDate, onSelectDate }) {
-  const [currentMonth] = useState(new Date());
-  
-  const daysInMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
-    0
-  ).getDate();
-  
-  const firstDayOfMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth(),
-    1
-  ).getDay();
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-  
-  // Generar días del mes anterior para llenar la primera semana
-  const prevMonthDays = [];
-  for (let i = firstDayOfMonth - 1; i >= 0; i--) {
-    const date = new Date(monthStart);
-    date.setDate(date.getDate() - i - 1);
-    prevMonthDays.push(date);
-  }
-  
-  // Generar días del mes actual
-  const currentMonthDays = [];
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    currentMonthDays.push(date);
-  }
-  
-  const allDays = [...prevMonthDays, ...currentMonthDays];
-  
-  const isSelected = (date) => {
-    if (!selectedDate) return false;
-    return date.toDateString() === selectedDate.toDateString();
-  };
-  
-  const isPastDate = (date) => date < today;
-  
-  return (
-    <div className="bg-white rounded-2xl shadow-soft p-4">
-      <div className="grid grid-cols-7 gap-2 mb-3">
-        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-          <div key={day} className="text-center text-sm font-semibold text-gray-500 py-2">
-            {day}
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7 gap-2">
-        {allDays.map((date, idx) => {
-          const isCurrentMonth = date.getMonth() === currentMonth.getMonth();
-          const isPast = isPastDate(date);
-          const selected = isSelected(date);
-          
-          return (
-            <button
-              key={idx}
-              onClick={() => !isPast && isCurrentMonth && onSelectDate(date)}
-              disabled={isPast || !isCurrentMonth}
-              className={`
-                aspect-square rounded-lg text-center font-semibold text-base transition-all
-                ${!isCurrentMonth ? 'text-gray-300' : ''}
-                ${isPast ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
-                ${selected ? 'bg-white text-[#53667B] ring-2 ring-[#C6A15B] ring-offset-2' : 'text-black'}
-                ${!isPast && !selected && isCurrentMonth ? 'hover:bg-gray-100' : ''}
-              `}
-            >
-              {date.getDate()}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+import { crearTurno, crearTurnoOffline, reprogramarTurno } from '../services/turnos';
+import { getPrecio } from '../services/config';
+import Calendar from './Calendar';
 
 // Componente para un slot de hora
 function TimeSlot({ time, selected, available, onClick }) {
@@ -106,67 +28,93 @@ function TimeSlot({ time, selected, available, onClick }) {
 
 function NewAppointmentDateTime() {
   const navigate = useNavigate();
-  const { selectedSpecialty, selectedLawyer, isRescheduling, clientData, resetWizard } = useAppointment();
+  const { selectedSpecialty, selectedLawyer, isRescheduling, clientData, currentAppointment, resetWizard } = useAppointment();
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(null);
-  const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [observations, setObservations] = useState('');
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [successData, setSuccessData] = useState(null);
+  const [precio, setPrecio] = useState(null);
+
+  useEffect(() => {
+    getPrecio().then(data => setPrecio(data.precio || data || 0)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (selectedDate && selectedLawyer) {
       (async () => {
         setLoadingSlots(true);
         setSelectedTime(null);
-        const slots = await getAvailableTimeSlots(selectedLawyer.id, selectedDate);
+        const slots = await getAvailableTimeSlots(selectedLawyer.idUsuario, selectedDate);
         setAvailableSlots(slots);
         setLoadingSlots(false);
       })();
     }
   }, [selectedDate, selectedLawyer]);
 
-  const handleConfirm = () => {
-    if (selectedDate && selectedTime) {
-      // TODO: handle payment redirect
-      // Check isRescheduling, clientData from context
+  const handleConfirm = async () => {
+    if (!selectedDate || !selectedTime) return;
+
+    const time24 = selectedTime.replace('hs', ':00');
+    const y = selectedDate.getFullYear();
+    const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const d = String(selectedDate.getDate()).padStart(2, '0');
+    const horarioTurno = `${y}-${m}-${d}T${time24}`;
+
+    try {
       if (isRescheduling) {
-        console.log('Reprogramando turno...');
-        // Llamar al backend para reprogramar
+        await reprogramarTurno(currentAppointment.id, horarioTurno);
         resetWizard();
         navigate('/dashboard');
       } else if (clientData) {
-        console.log('Creando turno para cliente desde abogado...');
-        const appointmentData = {
-          specialty: selectedSpecialty,
-          lawyer: selectedLawyer,
-          client: clientData,
-          date: selectedDate,
-          time: selectedTime,
-          observations
-        };
-        console.log('Datos del turno:', appointmentData);
-        // Llamar al backend para crear turno
+        await crearTurnoOffline({
+          idAbogado: selectedLawyer.idUsuario,
+          idEspecialidad: selectedSpecialty.id,
+          horarioTurno,
+          observacionesCliente: observations,
+          cliente: {
+            nombre: clientData.firstName || '',
+            apellido: clientData.lastName || '',
+            dni: clientData.dni || '',
+            telefono: clientData.phone || '',
+            email: clientData.email || '',
+            ...(clientData.street || clientData.number || clientData.locality
+              ? {
+                  direccion: {
+                    calle: clientData.street || '',
+                    numeroCalle: parseInt(clientData.number) || 0,
+                    dpto: clientData.apartment || '',
+                    piso: clientData.floor || '',
+                    localidad: Number(clientData.locality) || null,
+                    provincia: 'Córdoba',
+                  }
+                }
+              : {}),
+          }
+        });
         resetWizard();
         navigate('/dashboard');
       } else {
-        console.log('Confirmando turno con pago...');
-        const appointmentData = {
-          specialty: selectedSpecialty,
-          lawyer: selectedLawyer,
-          date: selectedDate,
-          time: selectedTime,
-          observations
-        };
-        console.log('Datos del turno:', appointmentData);
-        // Redirigir al pago o crear turno
-        resetWizard();
-        navigate('/dashboard');
+        const result = await crearTurno({
+          idEspecialidad: selectedSpecialty.id,
+          horarioTurno,
+          observacionesCliente: observations,
+          idAbogado: selectedLawyer.idUsuario,
+          idCliente: user.idUsuario,
+        });
+        setSuccessData(result);
       }
+    } catch (err) {
+      alert(err.message || 'Error al crear el turno');
     }
   };
 
   const canConfirm = selectedDate && selectedTime;
-  const APPOINTMENT_PRICE = '10.000 ARS';
+  const precioFormateado = precio != null
+    ? `$${Number(precio).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : null;
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
@@ -227,9 +175,9 @@ function NewAppointmentDateTime() {
           </div>
 
           {/* Precio */}
-          {!isRescheduling && !clientData && (
+          {!isRescheduling && !clientData && precioFormateado && (
             <div className="text-center">
-              <p className="text-xl sm:text-2xl font-extrabold text-black">Valor: {APPOINTMENT_PRICE}</p>
+              <p className="text-xl sm:text-2xl font-extrabold text-black">Valor: {precioFormateado}</p>
             </div>
           )}
 
@@ -270,6 +218,27 @@ function NewAppointmentDateTime() {
           </div>
         </div>
       </div>
+
+      {successData && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-white rounded-3xl p-8 mx-4 max-w-md shadow-xl text-center">
+            <div className="text-5xl mb-4">✅</div>
+            <h2 className="text-2xl font-bold text-[#53667B] mb-2">Turno reservado</h2>
+            <p className="text-[#53667B]/80 mb-6">
+              Debe pagar en los próximos <strong>15 minutos</strong> para confirmar su reserva,
+              de lo contrario el turno se cancelará automáticamente.
+            </p>
+            <button
+              onClick={() => { resetWizard(); navigate('/dashboard'); }}
+              className="w-full px-6 py-3.5 bg-[#C6A15B] border-2 border-[#C6A15B] rounded-xl
+                       text-[#53667B] text-lg font-bold shadow-medium hover:shadow-elevated
+                       hover:bg-[#A8C495] active:scale-[0.98] transition-all"
+            >
+              Ir al inicio
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,17 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { actualizarMatricula, actualizarEspecialidades } from '../services/abogados';
+import { getSpecialties } from '../services/specialties';
 
-const specialtiesList = [
-  { id: 'familia', name: 'FAMILIA', emoji: '⚖️' },
-  { id: 'penal', name: 'PENAL', emoji: '👮' },
-  { id: 'laboral', name: 'LABORAL', emoji: '💼' },
-  { id: 'civil', name: 'CIVIL', emoji: '🏠' },
-  { id: 'comercial', name: 'COMERCIAL', emoji: '🏢' },
-  { id: 'administrativo', name: 'ADMINISTRATIVO', emoji: '🏛️' },
-];
-
-function SpecialtyButton({ name, emoji, selected, onClick }) {
+function SpecialtyButton({ name, selected, onClick }) {
   return (
     <button
       onClick={onClick}
@@ -23,7 +16,7 @@ function SpecialtyButton({ name, emoji, selected, onClick }) {
                    : 'bg-black/10 text-[#53667B] hover:bg-black/15'
                  }`}
     >
-      {name} {emoji}
+      {name}
     </button>
   );
 }
@@ -33,9 +26,20 @@ function AdminUpdateLawyerForm() {
   const location = useLocation();
   const lawyer = location.state?.lawyer;
 
-  const normalizedSpecialties = (lawyer?.specialties || []).map(s => s.toLowerCase());
-  const [matricula, setMatricula] = useState(lawyer?.matricula || "");
-  const [selectedSpecialties, setSelectedSpecialties] = useState(normalizedSpecialties);
+  const [matricula, setMatricula] = useState(lawyer?.matricula || '');
+  const [selectedSpecialties, setSelectedSpecialties] = useState([]);
+  const [specialtiesList, setSpecialtiesList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingList, setLoadingList] = useState(true);
+
+  useEffect(() => {
+    getSpecialties().then(list => {
+      setSpecialtiesList(list);
+      if (lawyer?.especialidadesAbogado) {
+        setSelectedSpecialties(lawyer.especialidadesAbogado);
+      }
+    }).catch(() => {}).finally(() => setLoadingList(false));
+  }, [lawyer?.especialidadesAbogado]);
 
   const handleSpecialtyToggle = (id) => {
     setSelectedSpecialties((prev) =>
@@ -45,11 +49,19 @@ function AdminUpdateLawyerForm() {
     );
   };
 
-  const handleUpdate = () => {
-    // TODO: Enviar datos al backend
-    const updatedLawyer = { ...lawyer, matricula, specialties: selectedSpecialties };
-    console.log('Actualizando abogado:', updatedLawyer);
-    navigate('/admin/lawyers');
+  const handleUpdate = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        actualizarMatricula(lawyer.idAbogado, matricula.trim()),
+        actualizarEspecialidades(lawyer.idAbogado, selectedSpecialties),
+      ]);
+      navigate('/admin/lawyers');
+    } catch (err) {
+      alert(err.message || 'Error al actualizar el abogado');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -109,30 +121,35 @@ function AdminUpdateLawyerForm() {
             <h3 className="text-xl font-bold text-[#53667B] text-center mb-4">
               Especialidades
             </h3>
-            <div className="space-y-3">
-              {specialtiesList.map((spec) => (
-                <SpecialtyButton
-                  key={spec.id}
-                  name={spec.name}
-                  emoji={spec.emoji}
-                  selected={selectedSpecialties.includes(spec.id)}
-                  onClick={() => handleSpecialtyToggle(spec.id)}
-                />
-              ))}
-            </div>
+            {loadingList ? (
+              <p className="text-center text-[#53667B]">Cargando especialidades...</p>
+            ) : (
+              <div className="space-y-3">
+                {specialtiesList.map((spec) => (
+                  <SpecialtyButton
+                    key={spec.id}
+                    name={spec.title}
+                    selected={selectedSpecialties.includes(spec.id)}
+                    onClick={() => handleSpecialtyToggle(spec.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-3 pt-4">
             <button
               onClick={handleUpdate}
+              disabled={loading || loadingList}
               className="w-full px-6 py-4 bg-[#C6A15B] hover:bg-[#A8C495]
                        border-2 border-[#C6A15B] rounded-2xl
                        text-[#53667B] text-lg sm:text-xl font-bold
                        shadow-medium hover:shadow-elevated
                        active:scale-[0.98] transition-all duration-200
-                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Actualizar abogado
+              {loading ? 'Actualizando...' : 'Actualizar abogado'}
             </button>
             <button
               onClick={() => navigate(-1)}

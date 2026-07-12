@@ -1,5 +1,6 @@
 export function formatAppointmentDate(iso) {
-  const d = new Date(iso);
+  const normalized = typeof iso === 'string' ? iso.replace(' ', 'T') : iso;
+  const d = new Date(normalized);
   const dd = String(d.getDate()).padStart(2, '0');
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const yyyy = d.getFullYear();

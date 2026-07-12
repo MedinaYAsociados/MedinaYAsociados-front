@@ -2,25 +2,47 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import Calendar from './Calendar';
+import { useAuth } from '../context/AuthContext';
+import { listarTurnosAbogado } from '../services/turnos';
 
-const allAppointments = [
-  { id: 1, number: 1, clientName: 'Ramiro Doglio', date: new Date('2025-12-12T13:00:00'), status: 'confirmed' },
-  { id: 2, number: 2, clientName: 'María González', date: new Date('2025-11-15T14:30:00'), status: 'completed' },
-  { id: 3, number: 3, clientName: 'Carlos Pérez', date: new Date('2025-12-18T16:00:00'), status: 'pending' },
-  { id: 4, number: 4, clientName: 'Ana Martínez', date: new Date('2025-10-10T15:30:00'), status: 'cancelled' },
-  { id: 5, number: 5, clientName: 'Luis Rodríguez', date: new Date('2025-09-20T11:00:00'), status: 'rescheduled' },
-  { id: 6, number: 6, clientName: 'Ramiro Doglio', date: new Date('2025-12-20T09:00:00'), status: 'attended' },
-  { id: 7, number: 7, clientName: 'María González', date: new Date('2025-11-25T10:00:00'), status: 'no-show' },
-  { id: 8, number: 8, clientName: 'Carlos Pérez', date: new Date('2025-12-22T15:00:00'), status: 'paid' },
-  { id: 9, number: 9, clientName: 'Ana Martínez', date: new Date('2025-10-30T16:30:00'), status: 'in-progress' },
-  { id: 10, number: 10, clientName: 'Luis Rodríguez', date: new Date('2025-09-25T12:00:00'), status: 'confirmed' },
-];
+const statusToSpanish = {
+  '': '',
+  'pending': 'PENDIENTE',
+  'confirmed': 'CONFIRMADO',
+  'completed': 'COMPLETADO',
+  'cancelled': 'CANCELADO',
+  'rescheduled': 'REPROGRAMADO',
+  'attended': 'ASISTIÓ',
+  'no-show': 'NO ASISTIÓ',
+  'paid': 'PAGADO',
+  'in-progress': 'EN CURSO',
+  'expired': 'EXPIRO_PAGO',
+};
+
+const statusMap = {
+  'PENDIENTE': 'pending',
+  'CONFIRMADO': 'confirmed',
+  'COMPLETADO': 'completed',
+  'FINALIZADO': 'completed',
+  'CANCELADO': 'cancelled',
+  'REPROGRAMADO': 'rescheduled',
+  'ASISTIÓ': 'attended',
+  'ASISTIO': 'attended',
+  'NO ASISTIÓ': 'no-show',
+  'NO ASISTIO': 'no-show',
+  'PAGADO': 'paid',
+  'EN CURSO': 'in-progress',
+  'EN_CURSO': 'in-progress',
+  'EXPIRO_PAGO': 'expired',
+};
 
 function LawyerSearchAppointment() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showFromCalendar, setShowFromCalendar] = useState(false);
   const [showToCalendar, setShowToCalendar] = useState(false);
-  
+  const [loading, setLoading] = useState(false);
+
   const [filters, setFilters] = useState({
     dateFrom: null,
     dateTo: null,
@@ -38,7 +60,7 @@ function LawyerSearchAppointment() {
     setShowToCalendar(false);
   };
 
-  const formatDate = (date) => {
+  const formatDateDisplay = (date) => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -46,23 +68,45 @@ function LawyerSearchAppointment() {
     return `${day}/${month}/${year}`;
   };
 
-  const handleSearch = () => {
+  const formatDateISO = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleSearch = async () => {
     if (!filters.dateFrom || !filters.dateTo) {
       alert('Por favor seleccione fecha desde y hasta');
       return;
     }
-    const filtered = allAppointments.filter(appt => {
-      if (filters.dateFrom && appt.date < filters.dateFrom) return false;
-      if (filters.dateTo) {
-        const endOfDay = new Date(filters.dateTo);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (appt.date > endOfDay) return false;
-      }
-      if (filters.status && appt.status !== filters.status) return false;
-      if (filters.clientName && !appt.clientName.toLowerCase().includes(filters.clientName.toLowerCase())) return false;
-      return true;
-    });
-    navigate('/lawyer/appointments/search/results', { state: { results: filtered } });
+    setLoading(true);
+    try {
+      const apiFilters = {
+        fechaDesde: formatDateISO(filters.dateFrom),
+        fechaHasta: formatDateISO(filters.dateTo),
+        estado: statusToSpanish[filters.status] || filters.status,
+        cliente: filters.clientName,
+      };
+      const res = await listarTurnosAbogado(user.idUsuario, 0, 100, apiFilters);
+      const results = (res.content || []).map(item => {
+        const dateStr = item.fechaHora || item.horarioTurno;
+        const dateObj = dateStr ? new Date(dateStr) : null;
+        return {
+          id: item.idTurno,
+          number: item.idTurno,
+          clientName: item.persona || `${item.nombreCliente || ''} ${item.apellidoCliente || ''}`.trim() || '',
+          date: dateObj && !isNaN(dateObj.getTime()) ? dateObj : dateStr,
+          status: statusMap[item.estado?.toUpperCase()] || item.nombreEstado?.toLowerCase() || item.estado || 'pending',
+        };
+      });
+      navigate('/lawyer/appointments/search/results', { state: { results } });
+    } catch {
+      alert('Error al buscar turnos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const statusOptions = [
@@ -119,7 +163,7 @@ function LawyerSearchAppointment() {
                        border-2 border-[#C6A15B]/20 shadow-soft hover:shadow-medium transition-all
                        focus:outline-none focus:border-[#C6A15B] focus:ring-4 focus:ring-[#6C7F94]/20"
             >
-              {filters.dateFrom ? formatDate(filters.dateFrom) : 'escriba aqui'}
+              {filters.dateFrom ? formatDateDisplay(filters.dateFrom) : 'escriba aqui'}
             </button>
             {showFromCalendar && (
               <div className="absolute z-10 mt-2 bg-white rounded-2xl shadow-elevated p-4">
@@ -146,7 +190,7 @@ function LawyerSearchAppointment() {
                        border-2 border-[#C6A15B]/20 shadow-soft hover:shadow-medium transition-all
                        focus:outline-none focus:border-[#C6A15B] focus:ring-4 focus:ring-[#6C7F94]/20"
             >
-              {filters.dateTo ? formatDate(filters.dateTo) : 'escriba aqui'}
+              {filters.dateTo ? formatDateDisplay(filters.dateTo) : 'escriba aqui'}
             </button>
             {showToCalendar && (
               <div className="absolute z-10 mt-2 bg-white rounded-2xl shadow-elevated p-4">
@@ -201,14 +245,16 @@ function LawyerSearchAppointment() {
         <div className="mt-6 animate-slide-up">
           <button
             onClick={handleSearch}
+            disabled={loading}
             className="w-full px-6 py-3.5 bg-[#C6A15B] 
                      border-2 border-[#C6A15B] rounded-xl
                      text-[#53667B] text-lg sm:text-xl font-bold
                      shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
                      active:scale-[0.98] transition-all duration-200
-                     focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+                     focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30
+                     disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Buscar turnos
+            {loading ? 'Buscando...' : 'Buscar turnos'}
           </button>
         </div>
       </div>

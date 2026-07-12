@@ -1,8 +1,18 @@
-// Auth service with a switchable MOCK mode. When you're ready, set USE_MOCK=false
-// and ensure VITE_API_BASE_URL is configured.
+// Auth service
 import api, { setAuthToken } from './apiClient';
 
-const USE_MOCK = true; // Set to false to use real backend API
+const USE_MOCK = false; // Set to true to use mock users for testing without backend
+
+// Limpiar tokens mock legacy de sesiones anteriores con USE_MOCK=true
+if (!USE_MOCK) {
+  try {
+    const stored = localStorage.getItem('auth_token');
+    if (stored && stored.startsWith('mock-')) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+    }
+  } catch { /* noop */ }
+}
 
 // Mock users database
 const MOCK_USERS = {
@@ -95,33 +105,59 @@ async function mockRegister(payload) {
 }
 
 // ---------------- REAL IMPLEMENTATION (Spring Boot) ----------------
-// Adjust endpoints to your backend mapping.
+const ROLE_MAP = { CLIENTE: 'client', ABOGADO: 'lawyer', ADMIN: 'admin' };
+
+function mapRoles(roles) {
+  return (roles || []).map(r => ROLE_MAP[r] || r.toLowerCase());
+}
+
 async function realLogin({ email, password }) {
   const res = await api.post('/auth/login', { email, password });
   if (res?.token) setAuthToken(res.token);
-  // Normalizar respuesta del backend: { token, roles: ["ABOGADO","ADMIN"] }
-  // a la estructura interna: { token, user: { role, roles, ... } }
-  if (res && !res.user && res.roles) {
-    res.user = {
-      roles: res.roles.map(r => r.toLowerCase()),
-      role: res.roles[0]?.toLowerCase(),
-      name: email.split('@')[0],
-      email,
-    };
-  }
-  return res;
+
+  const backendUser = res.user || {};
+  const mappedRoles = mapRoles(res.roles);
+
+  const user = {
+    idUsuario: backendUser.idUsuario,
+    nombre: backendUser.nombre || '',
+    apellido: backendUser.apellido || '',
+    name: `${backendUser.nombre || ''} ${backendUser.apellido || ''}`.trim() || email.split('@')[0],
+    email: backendUser.email || email,
+    roles: mappedRoles,
+    role: mappedRoles[0] || '',
+  };
+
+  return { token: res.token, user };
 }
 
 async function realRegister(payload) {
   return api.post('/auth/register', payload);
 }
 
-export function logout() {
+async function realLogout() {
+  try {
+    await api.post('/auth/logout');
+  } catch {
+    // Even if the API call fails, clear locally anyway
+  }
   setAuthToken(null);
   try {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
   } catch { /* noop */ }
+}
+
+export function logout() {
+  if (USE_MOCK) {
+    setAuthToken(null);
+    try {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+    } catch { /* noop */ }
+  } else {
+    realLogout();
+  }
 }
 
 // ---------------- PUBLIC API ----------------

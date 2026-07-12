@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { formatAppointmentDate } from '../utils/date';
+import { formatAppointmentDate, isPast } from '../utils/date';
 import { MdOutlineArrowBack, MdPerson } from 'react-icons/md';
+import { listarTurnosAbogado } from '../services/turnos';
 
 const iconBtn = 'p-2 rounded-xl border-2 border-[#C6A15B]/30 text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors';
 
@@ -26,26 +28,34 @@ function AppointmentCard({ appt, onClick }) {
 function LawyerAppointments() {
   const navigate = useNavigate();
   const { user } = useOutletContext();
-  const appointments = [
-    {
-      id: 1,
-      number: 1,
-      clientName: 'Ramiro Doglio',
-      date: new Date('2025-12-12T13:00:00')
-    },
-    {
-      id: 2,
-      number: 2,
-      clientName: 'María González',
-      date: new Date('2025-11-15T14:30:00')
-    },
-    {
-      id: 3,
-      number: 3,
-      clientName: 'Carlos Pérez',
-      date: new Date('2025-12-18T16:00:00')
-    }
-  ];
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await listarTurnosAbogado(user.idUsuario, page);
+        if (mounted) {
+          setAppointments((data.content || data || []).map(t => ({
+            id: t.idTurno,
+            number: t.idTurno,
+            clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '',
+            date: t.fechaHora || t.horarioTurno,
+            status: (t.estado || t.nombreEstado || 'pending').toLowerCase(),
+          })));
+          setTotalPages(data.totalPages || 1);
+        }
+      } catch {
+        // empty
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [user.idUsuario, page]);
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
@@ -72,7 +82,9 @@ function LawyerAppointments() {
 
         {/* List container */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6">
-          {appointments.length === 0 ? (
+          {loading ? (
+            <p className="text-center text-[#53667B]">Cargando turnos...</p>
+          ) : appointments.length === 0 ? (
             <p className="text-center text-[#53667B]">No hay turnos disponibles.</p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -80,9 +92,28 @@ function LawyerAppointments() {
                 <AppointmentCard 
                   key={appt.id} 
                   appt={appt} 
-                  onClick={() => navigate(`/lawyer/appointments/${appt.id}`, { state: { appointment: appt } })}
+                  onClick={() => navigate(`/lawyer/appointments/${appt.id}`)}
                 />
               ))}
+            </div>
+          )}
+          {totalPages > 1 && !loading && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Anterior
+              </button>
+              <span className="text-[#53667B] font-semibold">Página {page + 1} de {totalPages}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page >= totalPages - 1}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Siguiente
+              </button>
             </div>
           )}
         </div>

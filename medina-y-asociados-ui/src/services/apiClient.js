@@ -1,6 +1,6 @@
 // Lightweight fetch wrapper for consistent API calls.
-// Configure Vite env var VITE_API_BASE_URL, e.g. http://localhost:8080/api
-const BASE_URL = import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8080/api';
+// Vite proxy redirige /api -> backend (ver vite.config.js)
+const BASE_URL = import.meta?.env?.VITE_API_BASE_URL || '/api';
 
 let authToken = (() => {
   try { return localStorage.getItem('auth_token'); } catch { return null; }

@@ -1,20 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
+import { getPrecio, updatePrecio } from '../services/config';
 
 function AdminManagePricing() {
   const navigate = useNavigate();
-  const [currentPrice, setCurrentPrice] = useState(10000);
+  const [currentPrice, setCurrentPrice] = useState(0);
   const [newPrice, setNewPrice] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
-  const handleConfirm = () => {
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getPrecio();
+        setCurrentPrice(data.precio || data || 0);
+      } catch {
+        // keep default
+      } finally {
+        setFetching(false);
+      }
+    })();
+  }, []);
+
+  const handleConfirm = async () => {
     if (!newPrice || isNaN(Number(newPrice))) {
       alert("Ingrese un precio válido");
       return;
     }
-    setCurrentPrice(Number(newPrice));
-    setShowConfirm(true);
+    setLoading(true);
+    try {
+      await updatePrecio(Number(newPrice));
+      setCurrentPrice(Number(newPrice));
+      setShowConfirm(true);
+    } catch (err) {
+      alert(err.message || 'Error al actualizar el precio');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseConfirm = () => {
@@ -54,7 +78,7 @@ function AdminManagePricing() {
             </div>
             <div className="bg-black/5 p-4">
               <p className="text-[#53667B] text-xl font-bold text-center">
-                {currentPrice.toLocaleString()} ARS
+                {fetching ? 'Cargando...' : `${currentPrice.toLocaleString()} ARS`}
               </p>
             </div>
           </div>
@@ -79,14 +103,16 @@ function AdminManagePricing() {
           <div className="space-y-3 pt-4">
             <button
               onClick={handleConfirm}
+              disabled={loading || fetching}
               className="w-full px-6 py-4 bg-[#C6A15B] hover:bg-[#A8C495]
                        border-2 border-[#C6A15B] rounded-2xl
                        text-[#53667B] text-lg sm:text-xl font-bold
                        shadow-medium hover:shadow-elevated
                        active:scale-[0.98] transition-all duration-200
-                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+                       focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirmar precio
+              {loading ? 'Guardando...' : 'Confirmar precio'}
             </button>
             <button
               onClick={() => navigate(-1)}
