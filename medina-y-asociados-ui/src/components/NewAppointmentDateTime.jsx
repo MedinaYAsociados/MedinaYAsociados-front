@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppointment } from '../context/AppointmentContext';
 import { useAuth } from '../context/AuthContext';
@@ -37,6 +37,21 @@ function NewAppointmentDateTime() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [successData, setSuccessData] = useState(null);
   const [precio, setPrecio] = useState(null);
+
+  const minSlotTime = useMemo(() => {
+    return new Date(Date.now() + 24 * 60 * 60 * 1000);
+  }, []);
+
+  const filteredSlots = useMemo(() => {
+    if (!selectedDate || !availableSlots.length) return availableSlots;
+    return availableSlots.filter(slot => {
+      const timePart = slot.replace('hs', '');
+      const [hours, minutes] = timePart.split(':').map(Number);
+      const slotDate = new Date(selectedDate);
+      slotDate.setHours(hours, minutes, 0, 0);
+      return slotDate >= minSlotTime;
+    });
+  }, [selectedDate, availableSlots, minSlotTime]);
 
   useEffect(() => {
     getPrecio().then(data => setPrecio(data.precio || data || 0)).catch(() => {});
@@ -136,7 +151,7 @@ function NewAppointmentDateTime() {
           {/* Calendario */}
           <div>
             <h2 className="text-center text-xl sm:text-2xl font-extrabold text-black mb-4">Seleccione fecha</h2>
-            <Calendar selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+            <Calendar selectedDate={selectedDate} onSelectDate={setSelectedDate} blockPast />
           </div>
 
           {/* Horarios */}
@@ -146,9 +161,11 @@ function NewAppointmentDateTime() {
               <p className="text-center text-[#53667B]">Cargando horarios…</p>
             ) : !selectedDate ? (
               <p className="text-center text-[#53667B]/70">Primero seleccione una fecha</p>
+            ) : filteredSlots.length === 0 ? (
+              <p className="text-center text-[#53667B]/70">No hay horarios disponibles para esta fecha.</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {availableSlots.map(slot => (
+                {filteredSlots.map(slot => (
                   <TimeSlot
                     key={slot}
                     time={slot}
