@@ -1,0 +1,151 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { formatAppointmentDate, isPast } from '../utils/date';
+import { MdOutlineArrowBack, MdPerson } from 'react-icons/md';
+import { listarTurnosAbogado } from '../services/turnos';
+
+const iconBtn = 'p-2 rounded-xl border-2 border-[#C6A15B]/30 text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors';
+
+function AppointmentCard({ appt, onClick }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="w-full rounded-2xl shadow-soft bg-white/70 backdrop-blur-sm overflow-hidden hover:shadow-medium transition-shadow"
+    >
+      <div className="bg-white/60 px-4 py-3 border-b border-black/5 text-center font-extrabold text-[#53667B]">
+        Nº Turno: {appt.number}
+      </div>
+      <div className="p-4">
+        <div className="bg-black/5 rounded-xl p-4 shadow-soft">
+          <p className="text-[#53667B] text-lg font-semibold">Cliente: {appt.clientName}</p>
+          <p className="text-[#53667B] text-lg font-semibold mt-3">Fecha Hora: {formatAppointmentDate(appt.date)}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function LawyerAppointments() {
+  const navigate = useNavigate();
+  const { user } = useOutletContext();
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await listarTurnosAbogado(user.idUsuario, page);
+        if (mounted) {
+          setAppointments((data.content || data || []).map(t => ({
+            id: t.idTurno,
+            number: t.idTurno,
+            clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '',
+            date: t.fechaHora || t.horarioTurno,
+            status: (t.estado || t.nombreEstado || 'pending').toLowerCase(),
+          })));
+          setTotalPages(data.totalPages || 1);
+        }
+      } catch {
+        // empty
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [user.idUsuario, page]);
+
+  return (
+    <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
+      <div className="max-w-6xl mx-auto w-full">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#53667B] leading-tight">
+              Bienvenido/a
+            </h1>
+            <p className="text-2xl sm:text-3xl font-extrabold text-[#53667B]">[{user.name}]</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate(-1)} className={iconBtn} aria-label="Volver">
+              <MdOutlineArrowBack className="w-8 h-8" />
+            </button>
+            <button onClick={() => navigate('/dashboard')} className={iconBtn} aria-label="Inicio">
+              <MdPerson className="w-8 h-8" />
+            </button>
+          </div>
+        </div>
+
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#53667B] text-center mb-6">Sus turnos</h2>
+
+        {/* List container */}
+        <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6">
+          {loading ? (
+            <p className="text-center text-[#53667B]">Cargando turnos...</p>
+          ) : appointments.length === 0 ? (
+            <p className="text-center text-[#53667B]">No hay turnos disponibles.</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {appointments.map(appt => (
+                <AppointmentCard 
+                  key={appt.id} 
+                  appt={appt} 
+                  onClick={() => navigate(`/lawyer/appointments/${appt.id}`)}
+                />
+              ))}
+            </div>
+          )}
+          {totalPages > 1 && !loading && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Anterior
+              </button>
+              <span className="text-[#53667B] font-semibold">Página {page + 1} de {totalPages}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page >= totalPages - 1}
+                className="px-5 py-2 rounded-xl bg-[#C6A15B] text-[#53667B] font-bold shadow-soft hover:shadow-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="mt-6 sm:mt-8 space-y-4">
+          <button
+            onClick={() => navigate('/lawyer/appointments/new/client')}
+            className="w-full px-6 py-3.5 bg-[#C6A15B] 
+                     border-2 border-[#C6A15B] rounded-xl
+                     text-[#53667B] text-lg sm:text-xl font-bold
+                     shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
+                     active:scale-[0.98] transition-all duration-200
+                     focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+          >
+            Nuevo turno
+          </button>
+          <button
+            onClick={() => navigate('/lawyer/appointments/search')}
+            className="w-full px-6 py-3.5 bg-[#C6A15B] 
+                     border-2 border-[#C6A15B] rounded-xl
+                     text-[#53667B] text-lg sm:text-xl font-bold
+                     shadow-medium hover:shadow-elevated hover:bg-[#A8C495] 
+                     active:scale-[0.98] transition-all duration-200
+                     focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
+          >
+            Buscar turno
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default LawyerAppointments;
