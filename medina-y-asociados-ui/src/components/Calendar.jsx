@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 
-function Calendar({ selectedDate, onSelectDate, minDate = null }) {
+function Calendar({ selectedDate, onSelectDate, minDate = null, blockPast = false }) {
   const [currentMonth, setCurrentMonth] = useState(() => {
     return selectedDate || new Date();
   });
@@ -11,6 +11,19 @@ function Calendar({ selectedDate, onSelectDate, minDate = null }) {
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
+  const today = useMemo(() => {
+    if (!blockPast) return null;
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, [blockPast]);
+
+  const actualMinDate = useMemo(() => {
+    if (!blockPast) return minDate;
+    if (!minDate) return today;
+    return today > minDate ? today : minDate;
+  }, [blockPast, minDate, today]);
+
   const daysInMonth = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -18,13 +31,11 @@ function Calendar({ selectedDate, onSelectDate, minDate = null }) {
     const lastDay = new Date(year, month + 1, 0);
     const days = [];
 
-    // Espacios vacíos para días antes del primer día del mes
     const firstDayOfWeek = firstDay.getDay();
     for (let i = 0; i < firstDayOfWeek; i++) {
       days.push(null);
     }
 
-    // Días del mes
     for (let day = 1; day <= lastDay.getDate(); day++) {
       days.push(new Date(year, month, day));
     }
@@ -34,8 +45,8 @@ function Calendar({ selectedDate, onSelectDate, minDate = null }) {
 
   const isDateDisabled = (date) => {
     if (!date) return false;
-    if (!minDate) return false;
-    return date < minDate;
+    if (!actualMinDate) return false;
+    return date <= actualMinDate;
   };
 
   const isSelected = (date) => {
@@ -107,7 +118,7 @@ function Calendar({ selectedDate, onSelectDate, minDate = null }) {
                 aspect-square flex items-center justify-center rounded-lg text-sm font-medium
                 transition-all
                 ${disabled 
-                  ? 'text-[#9C8B78]/30 cursor-not-allowed' 
+                  ? 'bg-black/5 text-[#9C8B78]/50 cursor-not-allowed' 
                   : 'text-[#53667B] hover:bg-[#6C7F94]/30 cursor-pointer'
                 }
                 ${selected 
