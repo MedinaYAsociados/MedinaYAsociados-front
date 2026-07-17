@@ -1,5 +1,3 @@
-// Lightweight fetch wrapper for consistent API calls.
-// Vite proxy redirige /api -> backend (ver vite.config.js)
 const BASE_URL = import.meta?.env?.VITE_API_BASE_URL || '/api';
 
 let authToken = (() => {
@@ -30,10 +28,9 @@ async function request(path, { method = 'GET', body, headers = {}, signal } = {}
     headers: finalHeaders,
     body: body instanceof FormData ? body : body != null ? JSON.stringify(body) : undefined,
     signal,
-    credentials: 'include', // adjust if your backend uses cookies or not
+    credentials: 'include', 
   });
 
-  // Try to parse JSON; safe fallback
   let data = null;
   const text = await res.text();
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }

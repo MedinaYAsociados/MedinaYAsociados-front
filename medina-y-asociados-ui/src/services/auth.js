@@ -14,9 +14,7 @@ if (!USE_MOCK) {
   } catch { /* noop */ }
 }
 
-// Mock users database
 const MOCK_USERS = {
-  // Cliente
   'cliente@test.com': {
     idUsuario: 1,
     nombre: 'Juan',
@@ -47,7 +45,6 @@ const MOCK_USERS = {
       { nombre: 'EXPIRO_PAGO', cantidad: 0 }
     ]
   },
-  // Abogado
   'abogado@test.com': {
     email: 'abogado@test.com',
     password: '123456',
@@ -55,7 +52,6 @@ const MOCK_USERS = {
     name: 'Dr. Alejandro Forneris',
     id: 'lawyer-1'
   },
-  // Admin (también es abogado — prueba de múltiples roles)
   'admin@test.com': {
     email: 'admin@test.com',
     password: '123456',
@@ -66,7 +62,6 @@ const MOCK_USERS = {
   }
 };
 
-// ---------------- MOCK IMPLEMENTATION ----------------
 async function mockLogin({ email, password }) {
   await new Promise((r) => setTimeout(r, 700));
   
@@ -78,7 +73,6 @@ async function mockLogin({ email, password }) {
     throw error;
   }
   
-  // Return user without password
   const { password: _, ...userWithoutPassword } = user;
   if (!userWithoutPassword.roles) {
     userWithoutPassword.roles = [userWithoutPassword.role];
@@ -96,7 +90,6 @@ async function mockRegister(payload) {
     error.code = 'INVALID_EMAIL';
     throw error;
   }
-  // New users are clients by default
   return { 
     ok: true, 
     id: Math.random().toString(36).slice(2),
@@ -139,7 +132,6 @@ async function realLogout() {
   try {
     await api.post('/auth/logout');
   } catch {
-    // Even if the API call fails, clear locally anyway
   }
   setAuthToken(null);
   try {

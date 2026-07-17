@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { formatAppointmentDate } from '../utils/date';
 import { useAppointment } from '../context/AppointmentContext';
@@ -52,24 +52,15 @@ function getStatusClass(status) {
 
 function LawyerAppointmentDetail() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = useParams();
   const { startReschedule } = useAppointment();
-  const [appointment, setAppointment] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const data = await detalleAbogado(id);
-        if (mounted) setAppointment(data);
-      } catch {
-        // handled below
-      }
-      if (mounted) setLoading(false);
-    })();
-    return () => { mounted = false; };
-  }, [id]);
+  const { data: appointment, isLoading: loading } = useQuery({
+    queryKey: ['turno-detalle-abogado', id],
+    queryFn: () => detalleAbogado(id),
+    enabled: !!id,
+  });
 
   if (loading) {
     return (
@@ -107,8 +98,8 @@ function LawyerAppointmentDetail() {
   const handleAction = async (actionFn) => {
     try {
       await actionFn(apptId);
-      const data = await detalleAbogado(id);
-      setAppointment(data);
+      queryClient.invalidateQueries({ queryKey: ['turno-detalle-abogado', id] });
+      queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
     } catch (err) {
       alert(err.message || 'Error al actualizar el turno');
     }

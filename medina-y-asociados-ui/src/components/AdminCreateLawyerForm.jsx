@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { crearAbogado } from '../services/abogados';
 import { getSpecialties } from '../services/specialties';
@@ -23,21 +24,19 @@ function SpecialtyButton({ name, selected, onClick }) {
 
 function AdminCreateLawyerForm() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const location = useLocation();
   const user = location.state?.user;
 
   const [matricula, setMatricula] = useState('');
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
-  const [specialtiesList, setSpecialtiesList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingList, setLoadingList] = useState(true);
 
-  useEffect(() => {
-    getSpecialties()
-      .then(list => setSpecialtiesList(list))
-      .catch(() => {})
-      .finally(() => setLoadingList(false));
-  }, []);
+  const { data: specialtiesList = [], isLoading: loadingList } = useQuery({
+    queryKey: ['especialidades'],
+    queryFn: getSpecialties,
+    staleTime: 10 * 60 * 1000,
+  });
 
   const toggleSpecialty = (id) => {
     setSelectedSpecialties(prev =>
@@ -64,6 +63,7 @@ function AdminCreateLawyerForm() {
         matricula: matricula.trim(),
         especialidadesAbogado: selectedSpecialties,
       });
+      queryClient.invalidateQueries({ queryKey: ['abogados'] });
       navigate('/admin/lawyers');
     } catch (err) {
       alert(err.message || 'Error al crear el abogado');

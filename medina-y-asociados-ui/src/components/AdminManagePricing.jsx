@@ -17,7 +17,6 @@ function AdminManagePricing() {
         const data = await getPrecio();
         setCurrentPrice(data.precio || data || 0);
       } catch {
-        // keep default
       } finally {
         setFetching(false);
       }

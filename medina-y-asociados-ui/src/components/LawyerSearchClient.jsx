@@ -77,7 +77,6 @@ function LawyerSearchClient() {
           </h1>
         </div>
 
-        {/* Search input */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-6 sm:p-8 animate-slide-up space-y-4">
           <div className="flex items-center gap-3 bg-white/90 rounded-2xl px-4 py-3 shadow-soft border-2 border-[#C6A15B]/20">
             <MdSearch className="w-6 h-6 text-[#53667B]" />
@@ -95,12 +94,10 @@ function LawyerSearchClient() {
             )}
           </div>
 
-          {/* Message */}
           {message && !loading && (
             <p className="text-center text-[#53667B] text-base">{message}</p>
           )}
 
-          {/* Results */}
           {results.length > 0 && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {results.map(client => (

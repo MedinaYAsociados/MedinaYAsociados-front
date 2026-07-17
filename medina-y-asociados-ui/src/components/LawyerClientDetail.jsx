@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome, MdCheckCircle, MdCancel, MdSchedule, MdMoneyOff, MdPlayCircle, MdAttachMoney } from 'react-icons/md';
 import { detalleUsuario } from '../services/usuarios';
 
@@ -77,19 +77,12 @@ function StatCard({ nombre, cantidad }) {
 function LawyerClientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    detalleUsuario(id)
-      .then((res) => { if (!cancelled) setData(res); })
-      .catch((err) => { if (!cancelled) setError(err.message || 'Error al cargar datos del cliente'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [id]);
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey: ['usuario-detalle', id],
+    queryFn: () => detalleUsuario(id),
+    enabled: !!id,
+  });
 
   if (loading) {
     return (

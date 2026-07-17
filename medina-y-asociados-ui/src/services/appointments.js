@@ -1,5 +1,4 @@
-// Mock appointments service for the client dashboard
-// Each appointment has: id, lawyer, date (ISO), number, specialty, observations, status
+
 
 const mockData = [
   { 
@@ -41,7 +40,6 @@ const mockData = [
 ];
 
 export async function getAppointments(/* userId */) {
-  // simulate latency
   await new Promise(r => setTimeout(r, 500));
   return mockData;
 }

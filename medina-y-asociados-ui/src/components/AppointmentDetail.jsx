@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome, MdPerson } from 'react-icons/md';
 import { formatAppointmentDate } from '../utils/date';
 import { useAppointment } from '../context/AppointmentContext';
@@ -7,23 +7,15 @@ import { detalleCliente, pagarTurno, cancelarTurno } from '../services/turnos';
 
 function AppointmentDetail() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = useParams();
   const { startReschedule } = useAppointment();
-  const [appointment, setAppointment] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await detalleCliente(id);
-        setAppointment(data);
-      } catch {
-        setAppointment(null);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id]);
+  const { data: appointment, isLoading: loading } = useQuery({
+    queryKey: ['turno-detalle-cliente', id],
+    queryFn: () => detalleCliente(id),
+    enabled: !!id,
+  });
 
   if (loading) {
     return (
@@ -91,6 +83,7 @@ function AppointmentDetail() {
     if (!confirm('¿Está seguro que desea cancelar este turno?')) return;
     try {
       await cancelarTurno(appointment.idTurno || appointment.id);
+      queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
       navigate('/dashboard');
     } catch (err) {
       alert(err.message || 'Error al cancelar el turno');

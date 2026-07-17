@@ -125,7 +125,6 @@ function LawyerSearchAppointment() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button 
             onClick={() => navigate(-1)}
@@ -146,9 +145,7 @@ function LawyerSearchAppointment() {
           </h1>
         </div>
 
-        {/* Formulario de búsqueda */}
         <div className="bg-white/60 rounded-3xl p-6 space-y-4 animate-slide-up">
-          {/* Campo Desde */}
           <div className="relative">
             <label className="block text-[#53667B] text-lg font-bold mb-2">
               Desde:
@@ -175,7 +172,6 @@ function LawyerSearchAppointment() {
             )}
           </div>
 
-          {/* Campo Hasta */}
           <div className="relative">
             <label className="block text-[#53667B] text-lg font-bold mb-2">
               Hasta:
@@ -203,7 +199,6 @@ function LawyerSearchAppointment() {
             )}
           </div>
 
-          {/* Campo Estado */}
           <div>
             <label className="block text-[#53667B] text-lg font-bold mb-2">
               Estado:
@@ -224,7 +219,6 @@ function LawyerSearchAppointment() {
             </select>
           </div>
 
-          {/* Campo Cliente */}
           <div>
             <label className="block text-[#53667B] text-lg font-bold mb-2">
               Cliente:
@@ -241,7 +235,6 @@ function LawyerSearchAppointment() {
           </div>
         </div>
 
-        {/* Botón Buscar */}
         <div className="mt-6 animate-slide-up">
           <button
             onClick={handleSearch}

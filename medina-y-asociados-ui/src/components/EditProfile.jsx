@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome, MdCheckCircle, MdCancel, MdSchedule, MdMoneyOff, MdPlayCircle, MdAttachMoney } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
 import { detalleUsuario } from '../services/usuarios';
@@ -78,24 +78,12 @@ function StatCard({ nombre, cantidad }) {
 function EditProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!user?.idUsuario) {
-      setLoading(false);
-      setError('Usuario no identificado.');
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    detalleUsuario(user.idUsuario)
-      .then((res) => { if (!cancelled) setData(res); })
-      .catch((err) => { if (!cancelled) setError(err.message || 'Error al cargar datos del perfil'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [user?.idUsuario]);
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey: ['usuario-detalle', user?.idUsuario],
+    queryFn: () => detalleUsuario(user.idUsuario),
+    enabled: !!user?.idUsuario,
+  });
 
   if (loading) {
     return (
@@ -109,7 +97,7 @@ function EditProfile() {
     return (
       <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
         <div className="max-w-6xl mx-auto w-full">
-          <p className="text-center text-[#53667B]">{error || 'No se encontró el perfil.'}</p>
+          <p className="text-center text-[#53667B]">{error?.message || error?.toString() || 'No se encontró el perfil.'}</p>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { formatAppointmentDate, isPast } from '../utils/date';
+import { useQuery } from '@tanstack/react-query';
+import { formatAppointmentDate } from '../utils/date';
 import { MdOutlineArrowBack, MdPerson } from 'react-icons/md';
 import { listarTurnosAbogado } from '../services/turnos';
 
@@ -28,34 +29,26 @@ function AppointmentCard({ appt, onClick }) {
 function LawyerAppointments() {
   const navigate = useNavigate();
   const { user } = useOutletContext();
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await listarTurnosAbogado(user.idUsuario, page);
-        if (mounted) {
-          setAppointments((data.content || data || []).map(t => ({
-            id: t.idTurno,
-            number: t.idTurno,
-            clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '',
-            date: t.fechaHora || t.horarioTurno,
-            status: (t.estado || t.nombreEstado || 'pending').toLowerCase(),
-          })));
-          setTotalPages(data.totalPages || 1);
-        }
-      } catch {
-        // empty
-      }
-      if (mounted) setLoading(false);
-    })();
-    return () => { mounted = false; };
-  }, [user.idUsuario, page]);
+  const { data: turnosPage, isLoading: loading } = useQuery({
+    queryKey: ['turnos-abogado', user.idUsuario, page],
+    queryFn: () => listarTurnosAbogado(user.idUsuario, page),
+    enabled: !!user.idUsuario,
+  });
+
+  const appointments = useMemo(() =>
+    (turnosPage?.content || turnosPage || []).map(t => ({
+      id: t.idTurno,
+      number: t.idTurno,
+      clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '',
+      date: t.fechaHora || t.horarioTurno,
+      status: (t.estado || t.nombreEstado || 'pending').toLowerCase(),
+    })),
+    [turnosPage]
+  );
+
+  const totalPages = turnosPage?.totalPages || 1;
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">

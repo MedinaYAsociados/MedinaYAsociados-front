@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome, MdCheckCircle, MdCancel, MdSchedule, MdMoneyOff, MdPlayCircle, MdAttachMoney } from 'react-icons/md';
 import { detalleUsuario } from '../services/usuarios';
 
@@ -78,18 +78,12 @@ function AdminUserFound() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = location.state?.user;
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.id) return;
-    let cancelled = false;
-    detalleUsuario(user.id)
-      .then((res) => { if (!cancelled) setData(res); })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [user?.id]);
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ['usuario-detalle', user?.id],
+    queryFn: () => detalleUsuario(user.id),
+    enabled: !!user?.id,
+  });
 
   const fullData = data && {
     ...data,

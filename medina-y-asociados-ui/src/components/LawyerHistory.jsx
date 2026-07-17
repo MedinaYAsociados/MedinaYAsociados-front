@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { formatAppointmentDate } from '../utils/date';
 import { listarTurnosAbogado } from '../services/turnos';
 
@@ -77,34 +78,26 @@ const statusMap = {
 function LawyerHistory() {
   const navigate = useNavigate();
   const { user } = useOutletContext();
-  const [historyAppointments, setHistoryAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await listarTurnosAbogado(user?.idUsuario, page);
-        if (mounted) {
-          setHistoryAppointments((data.content || data || []).map(t => ({
-            id: t.idTurno,
-            number: t.idTurno,
-            clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '—',
-            date: t.fechaHora || t.horarioTurno,
-            status: statusMap[(t.estado || t.nombreEstado || '').toLowerCase().replace(/\s+/g, '_')] || (t.estado || t.nombreEstado || '').toLowerCase() || 'pending',
-          })));
-          setTotalPages(data.totalPages || 1);
-        }
-      } catch {
-        // empty
-      }
-      if (mounted) setLoading(false);
-    })();
-    return () => { mounted = false; };
-  }, [user?.idUsuario, page]);
+  const { data: turnosPage, isLoading: loading } = useQuery({
+    queryKey: ['historial', user?.idUsuario, page],
+    queryFn: () => listarTurnosAbogado(user?.idUsuario, page),
+    enabled: !!user?.idUsuario,
+  });
+
+  const historyAppointments = useMemo(() =>
+    (turnosPage?.content || turnosPage || []).map(t => ({
+      id: t.idTurno,
+      number: t.idTurno,
+      clientName: t.persona || `${t.nombreCliente || ''} ${t.apellidoCliente || ''}`.trim() || '—',
+      date: t.fechaHora || t.horarioTurno,
+      status: statusMap[(t.estado || t.nombreEstado || '').toLowerCase().replace(/\s+/g, '_')] || (t.estado || t.nombreEstado || '').toLowerCase() || 'pending',
+    })),
+    [turnosPage]
+  );
+
+  const totalPages = turnosPage?.totalPages || 1;
 
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
@@ -169,7 +162,6 @@ function LawyerHistory() {
           )}
         </div>
 
-        {/* Buscar turnos button */}
         <div className="animate-slide-up">
           <button
             onClick={() => navigate('/lawyer/appointments/search')}

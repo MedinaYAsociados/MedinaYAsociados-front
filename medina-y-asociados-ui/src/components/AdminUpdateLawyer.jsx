@@ -42,7 +42,6 @@ function AdminUpdateLawyer() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header con botones de navegación y título */}
         <div className="flex items-start justify-between mb-6 animate-slide-up">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#53667B] mt-2">
             Actualizar abogado
@@ -65,7 +64,6 @@ function AdminUpdateLawyer() {
           </div>
         </div>
 
-        {/* Contenedor principal */}
         <div className="bg-white/70 rounded-3xl p-6 sm:p-8 animate-slide-up" style={{ animationDelay: '100ms' }}>
           {loading ? (
             <div className="text-center py-8">
