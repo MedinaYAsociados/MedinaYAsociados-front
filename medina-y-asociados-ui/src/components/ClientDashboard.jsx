@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { listarTurnosCliente } from '../services/turnos';
 import { formatAppointmentDate, isPast } from '../utils/date';
 
@@ -28,36 +29,28 @@ function ClientDashboard() {
   const multiRole = user?.roles?.length > 1;
   const iconBtn = 'p-2 rounded-xl border-2 border-[#C6A15B]/30 text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors';
   const [tab, setTab] = useState('upcoming');
-  const [loading, setLoading] = useState(true);
-  const [list, setList] = useState([]);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await listarTurnosCliente(user.idUsuario, page);
-        if (mounted) {
-          setList((data.content || data || []).map(t => ({
-            id: t.idTurno,
-            number: t.idTurno,
-            lawyer: t.persona || '',
-            date: t.fechaHora,
-            specialty: t.especialidad || '',
-            observations: t.observacionesCliente || '',
-            status: t.estado?.toLowerCase() || 'pending',
-          })));
-          setTotalPages(data.totalPages || 1);
-        }
-      } catch {
-        // empty
-      }
-      if (mounted) setLoading(false);
-    })();
-    return () => { mounted = false; };
-  }, [user.idUsuario, page]);
+  const { data: turnosPage, isLoading: loading } = useQuery({
+    queryKey: ['turnos-cliente', user.idUsuario, page],
+    queryFn: () => listarTurnosCliente(user.idUsuario, page),
+    enabled: !!user.idUsuario,
+  });
+
+  const list = useMemo(() =>
+    (turnosPage?.content || turnosPage || []).map(t => ({
+      id: t.idTurno,
+      number: t.idTurno,
+      lawyer: t.persona || '',
+      date: t.fechaHora,
+      specialty: t.especialidad || '',
+      observations: t.observacionesCliente || '',
+      status: t.estado?.toLowerCase() || 'pending',
+    })),
+    [turnosPage]
+  );
+
+  const totalPages = turnosPage?.totalPages || 1;
 
   const upcoming = useMemo(() => list.filter(a => !isPast(a.date)), [list]);
   const past = useMemo(() => list.filter(a => isPast(a.date)), [list]);

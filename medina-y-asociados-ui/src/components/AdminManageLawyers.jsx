@@ -7,7 +7,6 @@ function AdminManageLawyers() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header con botones de navegación */}
         <div className="flex items-center justify-end gap-3 mb-6 animate-slide-up">
           <button 
             onClick={() => navigate(-1)}

@@ -68,7 +68,6 @@ function LawyerSearchResults() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button 
             onClick={() => navigate(-1)}
@@ -89,7 +88,6 @@ function LawyerSearchResults() {
           </h1>
         </div>
 
-        {/* Lista de resultados */}
         <div className="bg-white/60 rounded-3xl p-6 mb-6 grid gap-4 sm:grid-cols-2 animate-slide-up">
           {results.length === 0 ? (
             <div className="bg-white/70 rounded-2xl shadow-medium p-8 text-center">
@@ -102,7 +100,6 @@ function LawyerSearchResults() {
           )}
         </div>
 
-        {/* Botón volver a buscar */}
         <div className="animate-slide-up">
           <button
             onClick={() => navigate('/lawyer/appointments/search')}

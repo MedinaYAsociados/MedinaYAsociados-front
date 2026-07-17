@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppointment } from '../context/AppointmentContext';
 import { useAuth } from '../context/AuthContext';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
@@ -8,7 +9,6 @@ import { crearTurno, crearTurnoOffline, reprogramarTurno } from '../services/tur
 import { getPrecio } from '../services/config';
 import Calendar from './Calendar';
 
-// Componente para un slot de hora
 function TimeSlot({ time, selected, available, onClick }) {
   return (
     <button
@@ -28,15 +28,27 @@ function TimeSlot({ time, selected, available, onClick }) {
 
 function NewAppointmentDateTime() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { selectedSpecialty, selectedLawyer, isRescheduling, clientData, currentAppointment, resetWizard } = useAppointment();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [observations, setObservations] = useState('');
-  const [availableSlots, setAvailableSlots] = useState([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
   const [successData, setSuccessData] = useState(null);
-  const [precio, setPrecio] = useState(null);
+
+  const { data: precioData } = useQuery({
+    queryKey: ['precio'],
+    queryFn: () => getPrecio().then(data => data.precio || data || 0),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const { data: availableSlots = [], isLoading: loadingSlots } = useQuery({
+    queryKey: ['slots', selectedLawyer?.idUsuario, selectedDate],
+    queryFn: () => getAvailableTimeSlots(selectedLawyer.idUsuario, selectedDate),
+    enabled: !!selectedDate && !!selectedLawyer,
+  });
+
+  const precio = precioData ?? null;
 
   const minSlotTime = useMemo(() => {
     return new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -53,21 +65,13 @@ function NewAppointmentDateTime() {
     });
   }, [selectedDate, availableSlots, minSlotTime]);
 
+  const prevDateRef = useRef(selectedDate);
   useEffect(() => {
-    getPrecio().then(data => setPrecio(data.precio || data || 0)).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (selectedDate && selectedLawyer) {
-      (async () => {
-        setLoadingSlots(true);
-        setSelectedTime(null);
-        const slots = await getAvailableTimeSlots(selectedLawyer.idUsuario, selectedDate);
-        setAvailableSlots(slots);
-        setLoadingSlots(false);
-      })();
+    if (prevDateRef.current !== selectedDate) {
+      setSelectedTime(null);
+      prevDateRef.current = selectedDate;
     }
-  }, [selectedDate, selectedLawyer]);
+  }, [selectedDate]);
 
   const handleConfirm = async () => {
     if (!selectedDate || !selectedTime) return;
@@ -81,6 +85,8 @@ function NewAppointmentDateTime() {
     try {
       if (isRescheduling) {
         await reprogramarTurno(currentAppointment.id, horarioTurno);
+        queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
+        queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
         resetWizard();
         navigate('/dashboard');
       } else if (clientData) {
@@ -109,6 +115,7 @@ function NewAppointmentDateTime() {
               : {}),
           }
         });
+        queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
         resetWizard();
         navigate('/dashboard');
       } else {
@@ -134,7 +141,6 @@ function NewAppointmentDateTime() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 text-[#53667B] mb-4">
           <button onClick={() => navigate(-1)} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Volver">
             <MdOutlineArrowBack className="w-9 h-9" />
@@ -145,16 +151,13 @@ function NewAppointmentDateTime() {
           <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Nuevo turno</h1>
         </div>
 
-        {/* Container principal */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-5 sm:p-8 space-y-6">
           
-          {/* Calendario */}
           <div>
             <h2 className="text-center text-xl sm:text-2xl font-extrabold text-black mb-4">Seleccione fecha</h2>
             <Calendar selectedDate={selectedDate} onSelectDate={setSelectedDate} blockPast />
           </div>
 
-          {/* Horarios */}
           <div>
             <h2 className="text-center text-xl sm:text-2xl font-extrabold text-black mb-4">Seleccione hora</h2>
             {loadingSlots ? (
@@ -178,7 +181,6 @@ function NewAppointmentDateTime() {
             )}
           </div>
 
-          {/* Observaciones */}
           <div>
             <h2 className="text-center text-xl sm:text-2xl font-extrabold text-black mb-4">Observaciones</h2>
             <textarea
@@ -191,7 +193,6 @@ function NewAppointmentDateTime() {
             />
           </div>
 
-          {/* Precio */}
           {!isRescheduling && !clientData && precioFormateado && (
             <div className="text-center">
               <p className="text-xl sm:text-2xl font-extrabold text-black">Valor: {precioFormateado}</p>
@@ -209,7 +210,6 @@ function NewAppointmentDateTime() {
             </div>
           )}
 
-          {/* Botones de acción */}
           <div className="space-y-3">
             <button
               onClick={handleConfirm}

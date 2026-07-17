@@ -78,7 +78,6 @@ function LawyerNewAppointmentClient() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#ECEFF3] px-4 sm:px-6 py-8 animate-fade-in">
       <div className="w-full max-w-sm sm:max-w-md">
-        {/* Header con botones */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button 
             onClick={() => navigate(-1)}
@@ -96,7 +95,6 @@ function LawyerNewAppointmentClient() {
           </button>
         </div>
 
-        {/* Card del Formulario */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-6 sm:p-8 animate-slide-up">
           <div className="mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-[#53667B] mb-1">
@@ -108,7 +106,6 @@ function LawyerNewAppointmentClient() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Nombre */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Nombre
@@ -126,7 +123,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Apellido */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Apellido
@@ -144,7 +140,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* DNI */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 DNI
@@ -162,7 +157,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Telefono */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Telefono
@@ -180,7 +174,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Email */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Email
@@ -197,7 +190,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Localidad */}
             <div className="space-y-2 relative" ref={dropdownRef}>
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Localidad
@@ -234,7 +226,6 @@ function LawyerNewAppointmentClient() {
               )}
             </div>
 
-            {/* Calle */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Calle
@@ -251,7 +242,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Numero */}
             <div className="space-y-2">
               <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
                 Numero
@@ -268,7 +258,6 @@ function LawyerNewAppointmentClient() {
               />
             </div>
 
-            {/* Piso y Departamento */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <label className="block text-[#53667B] text-sm sm:text-base font-semibold">
@@ -302,7 +291,6 @@ function LawyerNewAppointmentClient() {
               </div>
             </div>
 
-            {/* Botón Seguir */}
             <button
               type="submit"
               className="w-full px-6 py-3.5 bg-[#C6A15B] 

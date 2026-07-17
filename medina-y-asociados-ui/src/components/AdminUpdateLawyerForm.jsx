@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { actualizarMatricula, actualizarEspecialidades } from '../services/abogados';
 import { getSpecialties } from '../services/specialties';
@@ -23,23 +24,19 @@ function SpecialtyButton({ name, selected, onClick }) {
 
 function AdminUpdateLawyerForm() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const location = useLocation();
   const lawyer = location.state?.lawyer;
 
   const [matricula, setMatricula] = useState(lawyer?.matricula || '');
-  const [selectedSpecialties, setSelectedSpecialties] = useState([]);
-  const [specialtiesList, setSpecialtiesList] = useState([]);
+  const [selectedSpecialties, setSelectedSpecialties] = useState(lawyer?.especialidadesAbogado || []);
   const [loading, setLoading] = useState(false);
-  const [loadingList, setLoadingList] = useState(true);
 
-  useEffect(() => {
-    getSpecialties().then(list => {
-      setSpecialtiesList(list);
-      if (lawyer?.especialidadesAbogado) {
-        setSelectedSpecialties(lawyer.especialidadesAbogado);
-      }
-    }).catch(() => {}).finally(() => setLoadingList(false));
-  }, [lawyer?.especialidadesAbogado]);
+  const { data: specialtiesList = [], isLoading: loadingList } = useQuery({
+    queryKey: ['especialidades'],
+    queryFn: getSpecialties,
+    staleTime: 10 * 60 * 1000,
+  });
 
   const handleSpecialtyToggle = (id) => {
     setSelectedSpecialties((prev) =>
@@ -56,6 +53,7 @@ function AdminUpdateLawyerForm() {
         actualizarMatricula(lawyer.idAbogado, matricula.trim()),
         actualizarEspecialidades(lawyer.idAbogado, selectedSpecialties),
       ]);
+      queryClient.invalidateQueries({ queryKey: ['abogados'] });
       navigate('/admin/lawyers');
     } catch (err) {
       alert(err.message || 'Error al actualizar el abogado');
