@@ -87,6 +87,9 @@ function NewAppointmentDateTime() {
         await reprogramarTurno(currentAppointment.id, horarioTurno);
         queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
         queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
+        queryClient.invalidateQueries({ queryKey: ['historial'] });
+        queryClient.invalidateQueries({ queryKey: ['turno-detalle-cliente', currentAppointment.id] });
+        queryClient.invalidateQueries({ queryKey: ['turno-detalle-abogado', currentAppointment.id] });
         resetWizard();
         navigate('/dashboard');
       } else if (clientData) {
@@ -116,6 +119,8 @@ function NewAppointmentDateTime() {
           }
         });
         queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
+        queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
+        queryClient.invalidateQueries({ queryKey: ['historial'] });
         resetWizard();
         navigate('/dashboard');
       } else {
@@ -126,6 +131,9 @@ function NewAppointmentDateTime() {
           idAbogado: selectedLawyer.idUsuario,
           idCliente: user.idUsuario,
         });
+        queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
+        queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
+        queryClient.invalidateQueries({ queryKey: ['slots', selectedLawyer?.idUsuario, selectedDate] });
         setSuccessData(result);
       }
     } catch (err) {
