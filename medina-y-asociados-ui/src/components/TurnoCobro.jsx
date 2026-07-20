@@ -94,12 +94,6 @@ function TurnoCobro() {
                     </span>
                   </div>
                 )}
-                {displayCobro.ambitoEstado && (
-                  <div className="flex justify-between">
-                    <span className="font-semibold text-[#53667B]">Ámbito</span>
-                    <span className="font-bold text-black">{displayCobro.ambitoEstado}</span>
-                  </div>
-                )}
               </div>
             </div>
 
