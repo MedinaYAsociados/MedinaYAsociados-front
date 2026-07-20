@@ -4,6 +4,20 @@ import { useQuery } from '@tanstack/react-query';
 import { listarTurnosCliente } from '../services/turnos';
 import { formatAppointmentDate, isPast } from '../utils/date';
 
+const statusConfig = {
+  reservado:        { label: 'Reservado',        bg: 'bg-[#E8DCC4]/70' },
+  pagado:           { label: 'Pagado',           bg: 'bg-[#B8D4B8]/70' },
+  reprogramado:     { label: 'Reprogramado',     bg: 'bg-[#6C7F94]/70' },
+  cancelado:        { label: 'Cancelado',        bg: 'bg-[#D4A5A5]/70' },
+  cancelado_sin_reembolso:  { label: 'Cancelado sin reembolso',  bg: 'bg-[#D4A5A5]/70' },
+  cancelado_con_reembolso:  { label: 'Cancelado con reembolso',  bg: 'bg-[#D4A5A5]/70' },
+  en_curso:         { label: 'En Curso',         bg: 'bg-[#A5C4D4]/70' },
+  finalizado:       { label: 'Finalizado',       bg: 'bg-[#A5C4D4]/70' },
+  no_asistio:       { label: 'No Asistió',       bg: 'bg-[#D4A5A5]/70' },
+  expiro_pago:      { label: 'Expiró Pago',      bg: 'bg-[#D4A5A5]/70' },
+  pendiente_cobro:  { label: 'Pendiente de cobro', bg: 'bg-[#9C8B78]/70' },
+};
+
 function AppointmentCard({ appt, onClick }) {
   return (
     <button
@@ -17,6 +31,12 @@ function AppointmentCard({ appt, onClick }) {
         <div className="bg-black/5 rounded-xl p-4 shadow-soft">
           <p className="text-[#53667B] text-lg font-semibold">Abogado: {appt.lawyer}</p>
           <p className="text-[#53667B] text-lg font-semibold mt-3">Fecha Hora: {formatAppointmentDate(appt.date)}</p>
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-[#53667B] text-base font-semibold">Estado:</span>
+            <span className={`px-3 py-1 rounded-full text-[#53667B] text-sm font-semibold ${statusConfig[appt.status]?.bg || 'bg-white/70'}`}>
+              {statusConfig[appt.status]?.label || appt.status}
+            </span>
+          </div>
         </div>
       </div>
     </button>
