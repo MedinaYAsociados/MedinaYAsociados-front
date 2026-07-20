@@ -22,7 +22,8 @@ export function AppointmentProvider({ children }) {
     setIsRescheduling(true);
     if (appointment) {
       setSelectedSpecialty(appointment.specialty);
-      setSelectedLawyer(appointment.lawyer);
+      const abogadoId = appointment.lawyerId || appointment.abogadoId;
+      setSelectedLawyer(abogadoId ? { idUsuario: abogadoId } : null);
     }
   }, []);
 
