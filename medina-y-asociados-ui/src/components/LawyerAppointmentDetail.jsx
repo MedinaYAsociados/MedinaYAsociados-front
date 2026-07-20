@@ -128,7 +128,6 @@ function LawyerAppointmentDetail() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button
             onClick={() => navigate(-1)}
@@ -149,9 +148,7 @@ function LawyerAppointmentDetail() {
           </h1>
         </div>
 
-        {/* Contenedor principal */}
         <div className="bg-white/60 rounded-3xl p-6 space-y-6 animate-slide-up">
-          {/* Card de Cliente */}
           <div className="bg-gradient-to-b from-white/90 to-white/70 rounded-2xl shadow-medium overflow-hidden">
             <div className="bg-white/80 px-4 py-3 text-center border-b border-black/5">
               <h2 className="text-xl font-bold text-[#53667B]">Cliente</h2>
@@ -166,7 +163,6 @@ function LawyerAppointmentDetail() {
             </div>
           </div>
 
-          {/* Card de Fecha Hora */}
           <div className="bg-gradient-to-b from-white/90 to-white/70 rounded-2xl shadow-medium overflow-hidden">
             <div className="bg-white/80 px-4 py-3 text-center border-b border-black/5">
               <h2 className="text-xl font-bold text-[#53667B]">Fecha Hora</h2>
@@ -181,7 +177,6 @@ function LawyerAppointmentDetail() {
             </div>
           </div>
 
-          {/* Card de Especialidad */}
           <div className="bg-gradient-to-b from-white/90 to-white/70 rounded-2xl shadow-medium overflow-hidden">
             <div className="bg-white/80 px-4 py-3 text-center border-b border-black/5">
               <h2 className="text-xl font-bold text-[#53667B]">Especialidad</h2>
@@ -194,7 +189,6 @@ function LawyerAppointmentDetail() {
           </div>
         </div>
 
-        {/* Botones de acción */}
         <div className="mt-6 space-y-3 animate-slide-up">
           {canMarkPaid && (
             <button
@@ -276,7 +270,6 @@ function LawyerAppointmentDetail() {
           )}
         </div>
 
-        {/* Card de Estado */}
         <div className="mt-6 bg-white/40 backdrop-blur-sm rounded-2xl shadow-medium p-4 animate-slide-up">
           <div className="flex gap-3">
             <div className="flex-1 px-4 py-3 bg-white/60 border border-[#C6A15B]/30 text-[#53667B] 

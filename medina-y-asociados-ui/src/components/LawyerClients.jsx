@@ -7,7 +7,6 @@ function LawyerClients() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button 
             onClick={() => navigate(-1)}

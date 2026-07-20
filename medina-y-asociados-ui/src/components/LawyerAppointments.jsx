@@ -53,7 +53,6 @@ function LawyerAppointments() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#53667B] leading-tight">
@@ -73,7 +72,6 @@ function LawyerAppointments() {
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-[#53667B] text-center mb-6">Sus turnos</h2>
 
-        {/* List container */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6">
           {loading ? (
             <p className="text-center text-[#53667B]">Cargando turnos...</p>
@@ -111,7 +109,6 @@ function LawyerAppointments() {
           )}
         </div>
 
-        {/* Action buttons */}
         <div className="mt-6 sm:mt-8 space-y-4">
           <button
             onClick={() => navigate('/lawyer/appointments/new/client')}

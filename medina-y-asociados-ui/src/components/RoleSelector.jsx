@@ -50,7 +50,7 @@ function RoleSelector() {
         </p>
 
         <div className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
-          {available.map(({ key, icon: Icon, label, description }) => ( // eslint-disable-line no-unused-vars
+          {available.map(({ key, icon: Icon, label, description }) => (
             <button
               key={key}
               onClick={() => handleSelectRole(key)}

@@ -36,7 +36,6 @@ function NewAppointmentSpecialty() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 text-[#53667B] mb-4">
           <button onClick={() => navigate(-1)} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Volver">
             <MdOutlineArrowBack className="w-9 h-9" />
@@ -47,7 +46,6 @@ function NewAppointmentSpecialty() {
           <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Nuevo turno</h1>
         </div>
 
-        {/* Container */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-5 sm:p-8">
           <h2 className="text-center text-xl sm:text-2xl font-extrabold text-[#53667B] mb-4">Seleccione especialidad</h2>
 

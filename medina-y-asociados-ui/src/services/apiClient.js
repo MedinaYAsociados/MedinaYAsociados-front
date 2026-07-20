@@ -7,9 +7,9 @@ let authToken = (() => {
 export function setAuthToken(token) {
   authToken = token;
   if (token) {
-    try { localStorage.setItem('auth_token', token); } catch { /* noop */ }
+    try { localStorage.setItem('auth_token', token); } catch { }
   } else {
-    try { localStorage.removeItem('auth_token'); } catch { /* noop */ }
+    try { localStorage.removeItem('auth_token'); } catch { }
   }
 }
 

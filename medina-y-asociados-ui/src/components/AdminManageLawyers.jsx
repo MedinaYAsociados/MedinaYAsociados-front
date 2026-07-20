@@ -24,13 +24,11 @@ function AdminManageLawyers() {
           </button>
         </div>
 
-        {/* Contenedor principal más claro */}
         <div className="bg-white/70 rounded-3xl p-8 sm:p-12 shadow-soft animate-slide-up" style={{ animationDelay: '100ms' }}>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#53667B] text-left mb-12">
             Administrar Abogado
           </h1>
 
-          {/* Botones con color más claro */}
           <div className="space-y-6">
             <button
               onClick={() => navigate('/admin/lawyers/create')}

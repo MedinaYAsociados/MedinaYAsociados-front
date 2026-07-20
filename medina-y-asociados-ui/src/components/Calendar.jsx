@@ -68,7 +68,6 @@ function Calendar({ selectedDate, onSelectDate, minDate = null, blockPast = fals
 
   return (
     <div className="w-72">
-      {/* Header con mes/año y navegación */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}
@@ -89,7 +88,6 @@ function Calendar({ selectedDate, onSelectDate, minDate = null, blockPast = fals
         </button>
       </div>
 
-      {/* Días de la semana */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, idx) => (
           <div key={idx} className="text-center text-sm font-semibold text-[#53667B] py-1">
@@ -98,7 +96,6 @@ function Calendar({ selectedDate, onSelectDate, minDate = null, blockPast = fals
         ))}
       </div>
 
-      {/* Días del mes */}
       <div className="grid grid-cols-7 gap-1">
         {daysInMonth.map((date, idx) => {
           if (!date) {
