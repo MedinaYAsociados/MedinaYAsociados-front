@@ -55,8 +55,11 @@ function AppointmentDetail() {
   const canCancel = canReschedule;
 
   const handlePay = async () => {
+    const apptId = appointment.idTurno || appointment.id;
     try {
-      const result = await pagarTurno(appointment.idTurno || appointment.id);
+      const result = await pagarTurno(apptId);
+      queryClient.invalidateQueries({ queryKey: ['turno-detalle-cliente', apptId] });
+      queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
       if (typeof result === 'string' && result.startsWith('http')) {
         window.location.href = result;
       } else {
@@ -81,9 +84,12 @@ function AppointmentDetail() {
 
   const handleCancel = async () => {
     if (!confirm('¿Está seguro que desea cancelar este turno?')) return;
+    const apptId = appointment.idTurno || appointment.id;
     try {
-      await cancelarTurno(appointment.idTurno || appointment.id);
+      await cancelarTurno(apptId);
+      queryClient.invalidateQueries({ queryKey: ['turno-detalle-cliente', apptId] });
       queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
+      queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
       navigate('/dashboard');
     } catch (err) {
       alert(err.message || 'Error al cancelar el turno');

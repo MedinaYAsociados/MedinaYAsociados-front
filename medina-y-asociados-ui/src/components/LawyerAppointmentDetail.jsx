@@ -100,6 +100,9 @@ function LawyerAppointmentDetail() {
       await actionFn(apptId);
       queryClient.invalidateQueries({ queryKey: ['turno-detalle-abogado', id] });
       queryClient.invalidateQueries({ queryKey: ['turnos-abogado'] });
+      queryClient.invalidateQueries({ queryKey: ['turnos-cliente'] });
+      queryClient.invalidateQueries({ queryKey: ['historial'] });
+      queryClient.invalidateQueries({ queryKey: ['turno-detalle-cliente', apptId] });
     } catch (err) {
       alert(err.message || 'Error al actualizar el turno');
     }
