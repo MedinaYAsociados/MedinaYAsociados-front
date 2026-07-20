@@ -75,7 +75,6 @@ function AdminCreateLawyerForm() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header con botones de navegación y título */}
         <div className="flex items-start justify-between mb-6 animate-slide-up">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#53667B] mt-2">
             Crear abogado
@@ -98,10 +97,8 @@ function AdminCreateLawyerForm() {
           </div>
         </div>
 
-        {/* Contenedor principal */}
         <div className="bg-white/70 rounded-3xl p-6 sm:p-8 space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
           
-          {/* Nombre y apellido (solo lectura) */}
           <div className="bg-white/90 rounded-2xl shadow-soft overflow-hidden">
             <div className="bg-white/60 px-4 py-3 text-center border-b border-black/5">
               <h3 className="text-lg font-bold text-[#53667B]">Nombre y apellido</h3>
@@ -113,7 +110,6 @@ function AdminCreateLawyerForm() {
             </div>
           </div>
 
-          {/* Input de Matrícula */}
           <div className="bg-white/90 rounded-2xl px-4 py-4 shadow-soft border border-[#C6A15B]/10">
             <div className="flex items-center gap-3">
               <label className="text-[#53667B] font-bold text-lg whitespace-nowrap">
@@ -130,7 +126,6 @@ function AdminCreateLawyerForm() {
             </div>
           </div>
 
-          {/* Especialidades */}
           <div className="bg-white/90 rounded-2xl p-6 shadow-soft">
             <h3 className="text-xl font-bold text-[#53667B] text-center mb-4">
               Especialidades
@@ -151,7 +146,6 @@ function AdminCreateLawyerForm() {
             )}
           </div>
 
-          {/* Botones de acción */}
           <div className="space-y-3 pt-4">
             <button
               onClick={handleConfirm}

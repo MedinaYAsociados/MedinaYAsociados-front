@@ -31,7 +31,6 @@ function AdminUpdateLawyer() {
         const data = await listarAbogados();
         if (mounted) setLawyers(data);
       } catch {
-        // fallback empty
       } finally {
         if (mounted) setLoading(false);
       }

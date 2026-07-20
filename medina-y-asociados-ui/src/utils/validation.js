@@ -31,7 +31,6 @@ export function validateRegisterForm(f) {
   if (!required(f.localidad)) errors.localidad = 'Selecciona una opción';
   if (!required(f.calle)) errors.calle = 'Requerido';
   if (!isDigits(f.numero)) errors.numero = 'Solo números';
-  // piso/departamento opcionales
   if (!isEmail(f.email)) errors.email = 'Email inválido';
   if (!minLength(f.password, 6)) errors.password = 'Mínimo 6 caracteres';
   return errors;

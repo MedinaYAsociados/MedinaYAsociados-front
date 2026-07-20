@@ -102,7 +102,6 @@ function LawyerHistory() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-slide-up">
           <button
             onClick={() => navigate(-1)}
@@ -124,7 +123,6 @@ function LawyerHistory() {
           Historial turnos
         </h2>
 
-        {/* List container */}
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6 animate-slide-up">
           {loading ? (
             <p className="text-center text-[#53667B]">Cargando historial...</p>
