@@ -90,7 +90,7 @@ function LawyerAppointmentDetail() {
   const appointmentTime = isValidDate ? `${String(apptDate.getHours()).padStart(2, '0')}.${String(apptDate.getMinutes()).padStart(2, '0')}hs` : '';
   const canMarkInProgress = localStatus === 'paid' || localStatus === 'rescheduled';
   const canMarkCompleted = localStatus === 'in-progress';
-  const canMarkNoShow = canMarkCompleted;
+  const canMarkNoShow = localStatus === 'in-progress' || localStatus === 'pending-payment';
   const canMarkPaid = localStatus === 'pending-payment';
   const canReschedule = canMarkInProgress;
   const canCancel = canReschedule;
@@ -194,14 +194,26 @@ function LawyerAppointmentDetail() {
 
         <div className="mt-6 space-y-3 animate-slide-up">
           {canMarkPaid && (
-            <button
-              onClick={() => handleAction(() => marcarPagado(apptId))}
-              className="w-full px-6 py-3.5 bg-[#6C7F94]/10 hover:bg-[#6C7F94] border-2 border-[#C6A15B] text-[#53667B]
-                       font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
-                       transition-all focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
-            >
-              Marcar Pagado
-            </button>
+            <div className={`${canMarkNoShow ? 'flex gap-3' : ''}`}>
+              <button
+                onClick={() => handleAction(() => marcarPagado(apptId))}
+                className={`${canMarkNoShow ? 'flex-1' : 'w-full'} px-6 py-3.5 bg-[#6C7F94]/10 hover:bg-[#6C7F94] border-2 border-[#C6A15B] text-[#53667B]
+                         font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                         transition-all focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30`}
+              >
+                Marcar Pagado
+              </button>
+              {canMarkNoShow && (
+                <button
+                  onClick={() => handleAction(() => noAsistio(apptId))}
+                  className="flex-1 px-4 py-3.5 bg-[#D4A5A5]/80 hover:bg-[#C99595] border-2 border-[#C6A15B] text-white
+                           font-bold text-lg rounded-xl shadow-medium hover:shadow-elevated active:scale-[0.99] 
+                           transition-all focus:outline-none focus:ring-4 focus:ring-[#D4A5A5]/30"
+                >
+                  No Asistió
+                </button>
+              )}
+            </div>
           )}
           {canMarkInProgress && (
             <button
