@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { MdOutlineArrowBack, MdHome } from 'react-icons/md';
 import { formatAppointmentDate } from '../utils/date';
 import { listarTurnosAbogado } from '../services/turnos';
 
@@ -108,20 +109,17 @@ function LawyerHistory() {
             className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Volver"
           >
-            ←
+            <MdOutlineArrowBack className="w-5 h-5" />
           </button>
           <button
             onClick={() => navigate('/dashboard')}
             className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Inicio"
           >
-            🏠
+            <MdHome className="w-5 h-5" />
           </button>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#53667B]">Historial turnos</h1>
         </div>
-
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#53667B] text-center mb-6 animate-slide-up">
-          Historial turnos
-        </h2>
 
         <div className="bg-white/40 backdrop-blur-sm rounded-3xl shadow-elevated p-4 sm:p-6 mb-6 animate-slide-up">
           {loading ? (
