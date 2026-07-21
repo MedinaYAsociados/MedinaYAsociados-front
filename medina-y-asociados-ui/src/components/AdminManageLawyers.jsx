@@ -7,28 +7,25 @@ function AdminManageLawyers() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="flex items-center justify-end gap-3 mb-6 animate-slide-up">
-          <button 
+        <div className="flex items-center gap-3 mb-6 animate-slide-up">
+          <button
             onClick={() => navigate(-1)}
-            className="p-3 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Volver"
           >
-            <MdOutlineArrowBack className="w-6 h-6" />
+            <MdOutlineArrowBack className="w-5 h-5" />
           </button>
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
-            className="p-3 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
             aria-label="Inicio"
           >
-            <MdHome className="w-6 h-6" />
+            <MdHome className="w-5 h-5" />
           </button>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#53667B]">Administrar Abogado</h1>
         </div>
 
         <div className="bg-white/70 rounded-3xl p-8 sm:p-12 shadow-soft animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#53667B] text-left mb-12">
-            Administrar Abogado
-          </h1>
-
           <div className="space-y-6">
             <button
               onClick={() => navigate('/admin/lawyers/create')}

@@ -75,26 +75,22 @@ function AdminCreateLawyerForm() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6 animate-fade-in">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="flex items-start justify-between mb-6 animate-slide-up">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#53667B] mt-2">
-            Crear abogado
-          </h1>
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate(-1)}
-              className="p-3 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
-              aria-label="Volver"
-            >
-              <MdOutlineArrowBack className="w-6 h-6" />
-            </button>
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="p-3 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
-              aria-label="Inicio"
-            >
-              <MdHome className="w-6 h-6" />
-            </button>
-          </div>
+        <div className="flex items-center gap-3 mb-6 animate-slide-up">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
+            aria-label="Volver"
+          >
+            <MdOutlineArrowBack className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors"
+            aria-label="Inicio"
+          >
+            <MdHome className="w-5 h-5" />
+          </button>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#53667B]">Crear abogado</h1>
         </div>
 
         <div className="bg-white/70 rounded-3xl p-6 sm:p-8 space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>

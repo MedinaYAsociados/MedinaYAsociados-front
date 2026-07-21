@@ -59,14 +59,14 @@ function TurnoCobro() {
   return (
     <div className="min-h-screen bg-[#ECEFF3] px-4 sm:px-6 py-6">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-3 text-[#53667B] mb-4">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Volver">
-            <MdOutlineArrowBack className="w-9 h-9" />
+        <div className="flex items-center gap-3 mb-6 animate-slide-up">
+          <button onClick={() => navigate(-1)} className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors" aria-label="Volver">
+            <MdOutlineArrowBack className="w-5 h-5" />
           </button>
-          <button onClick={() => navigate('/dashboard/lawyer')} className="p-2 rounded-xl border-2 border-[#C6A15B]/30 hover:bg-[#C6A15B]/20 transition-colors" aria-label="Inicio">
-            <MdHome className="w-9 h-9" />
+          <button onClick={() => navigate('/dashboard/lawyer')} className="p-2.5 rounded-full border-2 border-[#C6A15B] text-[#53667B] hover:bg-[#C6A15B]/20 transition-colors" aria-label="Inicio">
+            <MdHome className="w-5 h-5" />
           </button>
-          <h1 className="ml-2 text-2xl sm:text-3xl font-extrabold">Cobro - N° Turno: {id}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#53667B]">Cobro - N° Turno: {id}</h1>
         </div>
 
         {!displayCobro ? (
