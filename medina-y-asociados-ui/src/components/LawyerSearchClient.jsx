@@ -110,6 +110,9 @@ function LawyerSearchClient() {
                     <p className="text-[#53667B] text-xl font-bold text-center">
                       {client.name || `${client.nombre || ''} ${client.apellido || ''}`}
                     </p>
+                    <p className="text-[#53667B] text-sm font-semibold text-center mt-1">
+                      DNI: {client.dni}
+                    </p>
                   </div>
                 </button>
               ))}
