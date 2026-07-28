@@ -34,6 +34,7 @@ function NewAppointmentDateTime() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [observations, setObservations] = useState('');
+  const MAX_OBS_LENGTH = 200;
   const [successData, setSuccessData] = useState(null);
 
   const { data: precioData } = useQuery({
@@ -194,11 +195,15 @@ function NewAppointmentDateTime() {
             <textarea
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
-              placeholder="Escriba aquí cualquier observación adicional..."
+              placeholder="Escriba aquí cualquier observación adicional... (máx. 200 caracteres)"
+              maxLength={MAX_OBS_LENGTH}
               className="w-full bg-white/90 rounded-2xl shadow-soft border border-black/5 p-4 text-[#53667B] 
                        placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C6A15B] 
                        resize-none h-32"
             />
+            <p className={`text-right text-sm mt-1 ${observations.length >= MAX_OBS_LENGTH ? 'text-red-500' : 'text-[#53667B]/60'}`}>
+              {observations.length}/{MAX_OBS_LENGTH}
+            </p>
           </div>
 
           {!isRescheduling && !clientData && precioFormateado && (
